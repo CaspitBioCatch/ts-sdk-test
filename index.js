@@ -6,6 +6,10 @@ class MySDK {
   stop() {
     console.log('SDK stopped');
   }
+
+  pause() {
+    console.log('SDK paused');
+  }
 }
 
 // package module definition 

@@ -1,5 +1,5 @@
 {
-  "name": "@biocatch/js-sdk-test",
+  "name": "@caspitbiocatch/biocatch-js-sdk-test",
   "version": "1.0.0",
   "description": "Testing JS SDK NPM publication",
   "main": "index.js",

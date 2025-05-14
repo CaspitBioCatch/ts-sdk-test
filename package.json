@@ -17,6 +17,5 @@
   "bugs": {
     "url": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test/issues"
   },
-  "publishConfig":{"registry":"https://biocatchdev.jfrog.io/artifactory/api/npm/npm/"},
   "homepage": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test#readme"
 }

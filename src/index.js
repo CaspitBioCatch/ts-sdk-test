@@ -1,6 +1,12 @@
+import { isPrimeNumber } from "./isPrime";
+
 class MySDK {
   start() {
     console.log('SDK started');
+  }
+
+  checkPrime(num) {
+    console.log(isPrimeNumber(num));
   }
 
   stop() {

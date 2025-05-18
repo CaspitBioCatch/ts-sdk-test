@@ -2,10 +2,12 @@
   "name": "@caspitbiocatch/biocatch-js-sdk-test",
   "version": "1.0.0",
   "description": "Testing JS SDK NPM publication",
-  "main": "index.js",
-  "type": "module",
+  "main": "./dist/main.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:dev": "webpack --mode=development --watch --progress"
   },
   "repository": {
     "type": "git",
@@ -17,5 +19,12 @@
   "bugs": {
     "url": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test/issues"
   },
-  "homepage": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test#readme"
+  "homepage": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test#readme",
+  "devDependencies": {
+    "webpack": "^5.99.8",
+    "webpack-cli": "^6.0.1"
+  },
+  "dependencies": {
+    "clean-webpack-plugin": "^4.0.0"
+  }
 }

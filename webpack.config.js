@@ -1,4 +1,5 @@
 const path = require('path');
+var WebpackObfuscator = require('webpack-obfuscator');
 
 const config = {
   target: 'web',
@@ -27,7 +28,10 @@ const config = {
             });
           });
         },
-      },
+    },
+    new WebpackObfuscator ({
+        rotateStringArray: true
+    }, ['index.js'])
   ],
   resolve: {
     extensions: ['.js'],

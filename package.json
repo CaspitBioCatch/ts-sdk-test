@@ -1,6 +1,6 @@
 {
   "name": "@caspitbiocatch/biocatch-js-sdk-test",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Testing JS SDK NPM publication",
   "main": "./dist/main.js",
   "files": [

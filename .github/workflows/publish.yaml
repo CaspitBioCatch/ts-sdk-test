@@ -17,6 +17,9 @@ jobs:
         node-version: '14'
         registry-url: 'https://npm.pkg.github.com'
 
+    - name: Installing NPM
+      run: npm install
+
     - name: Publish to GitHub Packages
       run: npm publish
       env:

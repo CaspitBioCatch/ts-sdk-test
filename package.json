@@ -7,7 +7,8 @@
     "dist"
   ],
   "scripts": {
-    "build:dev": "webpack --mode=development --watch --progress"
+    "build:dev": "webpack --mode=development --watch --progress",
+    "prepublishOnly": "webpack --mode=production"
   },
   "repository": {
     "type": "git",
@@ -22,9 +23,7 @@
   "homepage": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test#readme",
   "devDependencies": {
     "webpack": "^5.99.8",
-    "webpack-cli": "^6.0.1"
-  },
-  "dependencies": {
+    "webpack-cli": "^6.0.1",
     "clean-webpack-plugin": "^4.0.0"
   }
 }

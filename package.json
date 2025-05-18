@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/CaspitBioCatch/biocatch-js-sdk-test#readme",
   "devDependencies": {
+    "javascript-obfuscator": "^4.1.1",
     "webpack": "^5.99.8",
     "webpack-cli": "^6.0.1",
     "webpack-obfuscator": "^3.5.1"

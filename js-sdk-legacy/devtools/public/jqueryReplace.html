@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Test customer scripts</title>
+<!-- <script type="text/javascript" src="/customerJs/Stat896_inc.js"></script> -->
+<!-- <script type="text/javascript" src="/customerJs/Stat896_inc.js"></script> -->
+<!-- <script type="text/javascript" src="/customerJs/sloth_inc.js"></script> -->
+<!--  -->
+<script type="text/javascript" src="/NoJQuery.js"></script>
+<script type="text/javascript" src="/jqeuryReplace.js"></script>
+
+</head>
+<body>
+	<h1>Some elements</h1>
+	<br/>
+	Enter context name: <input id='contextName'/>
+	<button id='contextApi' onclick='callContextApi();'>Call ContextChange Api</button>
+	<br/>
+	Password field: <input id='pass' type='password'/>
+	<br/>
+	Email field: <input id='email' type='email'/>
+	<br/>
+	<input type='checkbox' value'BOB' checked=true />
+	<br/>
+	<a href="/dropDownCollectionTest.html">Visit DropDown page</a>
+
+<button id='compressBtn' onclick='compress();'>Encode</button>
+
+<select id="compressBy">
+    <option value="protobuf">protobuf</option>
+    <option value="msgpack">msgpack</option>
+    <option value="jsonh">jsonh</option>
+</select>
+
+<iframe id='iframe1'src="postmessage_iframe.html"></iframe>
+
+<h6 id="compressRatio">
+</h6>
+<br/>
+<textarea rows="25" cols="100" id="compressTA">
+
+</textarea>
+<br/>
+</body>
+</html>

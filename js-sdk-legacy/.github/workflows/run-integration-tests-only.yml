@@ -1,0 +1,126 @@
+
+name: Integration Tests Only Workflow
+
+on:
+  workflow_dispatch:
+
+env:
+  BUILD_REPORTS_FOLDER_PATH: ./build_reports
+  TEST_REPORTS_FOLDER_PATH: ./build_reports/test_report_artifacts
+  CODE_COVERAGE_REPORTS_FOLDER_PATH: ./build_reports/test_coverage_report_artifacts
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+  S3_BUILDS_PATH: s3://rnd-bcdn/clientDev/js/builds
+
+jobs:
+
+  build-library:
+    name: Build Library
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache Yarn Packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install Dependencies
+        run: |
+          yarn global add retry-cli
+
+          $(yarn global bin)/retry -- yarn
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run ESLINT
+        run: yarn run eslint
+      - name: Build Release
+        run: yarn run build
+      - name: Build Debug
+        run: yarn run builddev
+      - name: Build Obfuscated
+        run: yarn run buildObfuscate
+      - name: Upload Library Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: library_artifacts
+          path: dist/**
+          if-no-files-found: error
+      - name: Upload Temp Library Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: temp_library_artifacts
+          path: tempClasses/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-integration-tests:
+    name: Run Integration Tests
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    needs: [ build-library ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache Yarn Packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn global add retry-cli
+
+          $(yarn global bin)/retry -- yarn
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: Run Tests
+        run: |
+          yarn global add retry-cli
+          sudo /bin/sh -c 'echo "127.0.0.1 crossdomain1.local" >> /etc/hosts'
+          sudo /bin/sh -c 'echo "127.0.0.1 crossdomain2.local" >> /etc/hosts'
+          sudo /bin/sh -c 'echo "127.0.0.1 crossdomain3.local" >> /etc/hosts'
+          yarn run testwebserver &
+          #Run the unit tests
+          $(yarn global bin)/retry -n 3 -- $(yarn bin)/grunt ci-integration-tests-excluding-ios-min-output
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: build_reports
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error

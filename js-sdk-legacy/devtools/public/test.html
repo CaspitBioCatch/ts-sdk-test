@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <script>
+        document.cookie = "bcCsid=cookieValue";
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://rawgit.com https://cdn.jsdelivr.net; worker-src  https://localhost:9000/customerJs/worker_DevVersion.js blob:;">
+
+    <!-- 1.4 metatags -->
+    <meta name='bcscriptlocation' content='https://localhost:8000/customerJs/'/>
+    <meta name='bcslothlocation' content='bcqa.customers.biocatch.com'/>
+    <meta name='bcsid' content='devTeamTest' />
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid' />
+    <meta name='bcacid' content='devTeamTestAccountId' />
+    <!-- 2.0 metatags -->
+    <!--<meta name='cdConfLocation' content='/customerJs/testCustomerConfig.js'></meta>-->
+    <meta name='cdConfLocation'
+          content='https://wup-dtrackers.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=dtrackers'/>
+<!--    https://wup-client.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=client-->
+<!--    https://wup-hybridsolution.bc2.customers.biocatch.com/api/v4/wup?cid=hybridsolution-->
+    <meta name='cdLogAddress'
+          content='https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs'/>
+    <meta name="cdWorkerUrl" content="customerJs/worker_DevVersion.js" />
+    <meta name='my_csid' content='bob-csid'/>
+
+    <title>Test customer scripts</title>
+    <script>
+        function publishCsid(length) {
+            const csid = generateRandomAlphanumeric(length);
+            window.cdApi.setCustomerSessionId(csid);
+        }
+        function generateRandomAlphanumeric(length) {
+            let result = '';
+            while (result.length < length) {
+                // Concatenate random alphanumeric strings
+                result += Math.random().toString(36).substring(2);
+            }
+            // Trim the result to the desired length, in case it's longer
+            return result.substring(0, length).toUpperCase();
+        }
+    </script>
+
+    <script type="text/javascript" src="customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="customerJs/slothDebug_DevVersion.js" ></script>
+    <!--<script type="text/javascript" src="/lazyCustomerContext.js"></script>-->
+<!--    <script type="text/javascript" src="customerJs/slaveDebug_DevVersion.js"></script>-->
+    <script type="text/javascript">
+        function compress() {
+            var a = document.getElementsByName('bcsid')[0].getAttribute('content');
+        }
+
+        function callFlushApi() {
+            cdApi.client.flush();
+        }
+
+        function setCoordinatesMasking(isEnable) {
+            cdApi.client.setCoordinatesMasking(isEnable)
+        }
+
+        function callResetSessionApi() {
+            window.postMessage({type: 'ResetSession', resetReason: 'customerApi'}, window.location.href);
+        }
+
+        function callSetPsidApi() {
+            var psid = document.getElementById('psidValue').value;
+            window.postMessage({type: 'cdSetPsid', psid: psid}, window.location.href);
+        }
+
+        function callContextApi() {
+            var ctxName = document.getElementById('contextName').value;
+            window.postMessage({type: 'ContextChange', context: ctxName}, window.location.href);
+        }
+
+        function callChangeStateApi() {
+            var stateName = document.getElementById('stateName').value;
+            if (stateName !== 'run' && stateName !== 'pause') {
+                return;
+            }
+
+            window.postMessage({type: 'cdChangeState', toState: stateName}, window.location.href);
+        }
+
+        function getConnectionType() {
+            document.getElementById('connectionType').value = window.navigator.connection ? window.navigator.connection.type : 'not supported';
+        }
+
+        function calcTime() {
+            var perfData = window.performance.timing;
+            var pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+            document.getElementById('calcResult').value = pageLoadTime;
+        }
+
+        function addListener(listener, eventName, eventListener) {
+            if (listener.addEventListener) {
+                listener.addEventListener(eventName, eventListener);
+            }
+            else {
+                listener.attachEvent(eventName, eventListener);
+            }
+        }
+
+        /**
+         * @see https://github.com/RobinHerbots/Inputmask
+         */
+        function addInputMask() {
+            if (typeof window.jQuery !== "undefined") {
+                if (typeof window.jQuery.fn.inputmask !== "undefined") {
+                    //$("#inputMaskTest").inputmask();
+                }
+                if (typeof window.jQuery.fn.mask !== "undefined") {
+                    $("#inputMaskTest").mask('00/00/0000');
+                }
+            }
+        }
+
+        function addAutoTabMask() {
+            $('#numberAutoTabTest').autotab('filter', 'number');
+        }
+
+        // Bradesco performance reproduction code
+        // Adds l - number of input fields
+        // and is invoked after t - milliseconds
+        // The reason for using setTimeout is to allow jumping from the console to the debugger
+        function __addInputFields(l, t) {
+            setTimeout(function () {
+                var _doc = document.getElementById("iframe1").contentWindow.document;
+                for (var i = 0; i < (l / 2); i++) {
+                    var _temp = _doc.createElement("input");
+                    _temp.setAttribute("type", "text");
+                    _temp.setAttribute("value", "H4sIAAAAAAAAAO29CXgc2Vko2pblRZZsS14kz14znnHbM1ZLvWm3ZyRZHmviRVi2Z8K8QanuLrXKrq4qVVXL7XEmNyEkAZKQkAVutkmGLEPuu8nlAkkg3Pc9Bgey8MiD5HG5L4QAeSEJZCO8B4EAl3f+c+pU9VJV59RiZ+73XSUjl6qr6/​zb+f/​/​/​P9/​/​vMfv5PaUjdSe588fVncEDOKqFYz50qXpbI1/​ebPP/​HefvOI0pVKNfRUKtVVX0+9IgU/​m50r9163c7XNSvWsbMjS1fOaZuk63N6q67pppPrxGHVLVjKntbKoSK/​4x4GXvXv0n77dlepeTG1fE821slaRTqe2lbW6ahnXrNQeDNcIwDWybBmyWp0+ndoOf9bFqgTv3o4e3xANWVQt/​GdD/​zf0Y6VSVqpLUuHWDiu149SFM6dX5maXF+fRHyOKVpXVzGVTd4DegsAbcEkwp2mKJKp/​IBiv/​ON3/​/​C7XalNP57asiEqdQmRAr7Tj/​HqJ5fou3td1GYNQ7x2Wjatxqu+cNc7Pi2+Z3Nq02Kq25SfljAdH7jajX4fDqTm5mZqdq/​IlVHdSh24uPgYGsUsG7JunbJqynlJrUiGZMCzQw4CGIhTiJZnRH3Lti+9cGPwZX+0OdV1MrVD0cTKSbFsacZiqsdaMyRzTVMqDf3hR/​BQfVe3o9/​96L9NVmqzaZSt1MNrlqWbUyMjpXJFHRYL41mxuDqZuSoNm5ZomZmyVhsh8Jgj9FPnAhG4oZsA3G32CJvwCF1khO0GAb+CIH8IIG9kVsWyhF+qa6qkWpmVWcsSy2tSZRmNJj1uiLouGSf+168/​8swXz32qK9V1OrV1payIpmmlBpoEZR5uITnZu3IVf4V8nYh1q0jZot7QN4zUIc2oZkQdxsvUrhFQJCVzCbg+J6sVJHuLNV1JuT8NxJTyweu6oelzSFoQ4OqqXM3A35JhyZL5ZNqUqnVDVMsiwcqwxBpCTFTQQHJGrJVk9JeUfko4dkxIL50/​d+Li/​Oy5tPCwYBl1SZgSVkXFlJ5p6PATTmCyWEAPwK8HW3jQxGW4fUdEJmdL+crkuFQOZDLcvht/​eA/​8ut9KvSw5cl1YWL6wwE+rLf60yiE+9jdL4AWpgZVJwY9yVqpvVTPK0mJlEclwAz+2e1OQtBPt0UKLfQev18yqiQhdQlK6YsmWQuH3RmHAubrTAy0bmTxCZshDlEEjwaNzPjh1WalcMw0IVJmLi/​N0Ol4Qq5mT586fWTi/​Mn9q8fSJlcUTy51aZ1myPnniNW/​/​hd/​4RGEzTJGrfTAAJQmBsdAAGMbh10Qb0TZjgEBDdnVKz56D18umuSJeLQn3HhPUuqI8A59MtTy0w3kIE9NKbZMtqTa/​vKyH+MFvHMBMBFg2BQrUFo8J2eMlbnBxCkG0/​+LibKVyXjK1OhIiqsbBbiL+TQGBfJiUYihU8sIWcuw+eN3GP6PI6hVME2K28D8TBN8ma6bb0ozuNqIKYRG/​cB5+VfzkDW4v4A9PesnIWEQZ2UfYL6urhhggJX1Njzk0OZuwiHjqZ7ioEnO+bF1TkBGWpBZzTuSgCHIwxikHTRRBqqYmVWSxfeJQIbCQa2PJ+jOIysgDWG16DH49RfRPZMaPu4x/​ZUTGT0Rk/​C7M0QCWb8UP3HpmvxoPZ7N1HNg6EZ6tcHujjVmYUNcS5uCky8F/​H4GDW8D3GI3IwoGD1y+z1HsPfcbW7ltBsB97kSj3d2HiPY6MEFByCtMivCqH20+2yzZBk0+HIypdXq9LxjVY48RU55ihWVcoPh5VKHIRhWIvZjhLn/​e6Tznkee5WzfDfJM42ggITC/​M9F43vd7RN54/​GmM6Y7HmXdX8QlXVR/​bWdwJQApm2Bz289u/​6whV3Y4cpG8LhCsstnAYIJTPylIvz6f4JWa54sCFxwHTp4/​TCyeosLE5QPR4SXv1w4fLnl1jOwlB2YuXd4+El5VVAsYXFBmHjquK1j9GirEYzZmCt+340qfuPRzUkr6t7mhDxz6/​2C71O/​AIvhGBbD8RepZ4D5MOHwctPWqLycjMjLflAVwazcbj9yyxXKpp4WhTKBOTn5o1QouVFHoWy6M0mFAr++Acqib+beJ9F6RV59ang4WE8EgZl1wXzgJum98U69Nx6o98aT0Hu5nDtX/​DxA1lzJ5WPqvXEOvTd+y/​Xepnyz3svlpjCqL2K9lyu4vDwVlZfFeHoviJW23hu/​9XrvJc16L1fAnCz+SPXemKtQfiJhvbfpSANevkkI1A4+IXkM3DhSNnd5hGYfM3GSYVmCAO2m1bhwt0rHbQevQ2wWR9xNqQrxdA3i51kQFwiOmkuGXJNCI4OdgU1V+LWeLMQPBecI6oaSUbSqtrqaforgsBfn886IsnrRUBbUsmRA2ickPpMuPteTxWeBlfMo1w3ZunZGVMWqZCAmmaasqUhAylcyZUs5K9Ykimm/​g+lZrSbNW0pYNPOjLpqvSRbNgwev26AvlxF2T6blkr66Yt9aQYhQJPocJKIgkHUReFOyCNx98DqGjDBqTdyQHpUMUZktW/​KG1CCwD3TcD41AzkXgHckiMNiCgFaRq9ri3BkCeI/​zd2iA8y7A708WYKEZYDSvnVSTBCJUN+3p7fFJaCQKLhIfSRaJdDMSltSwtEuSIa/​KZbEsagB3My63+z8QGqWii9InkkXpnoPXa2jeInU0V1crCprLOoJQX7kqV6w1Oo23X5XVx+FGaMDHXMBfSFygPAFfk+TqmkUh70GQn8J3QoM+6aTVN/​1+fEfHSr2XZRuMDbksZaByA4oY5DJNGpqZimxIlmbIWuayUxViIhSxMI5UpFWxrliZy+bDtnwuBYxDCmIkEw+hmZkNyTBFjdArtJ9TIItPKEvZ9H/​dJL/​eSv1CEpRDSyCHYoQG6M7NIZhf/​YGlIRFFhuXiIuQAL4jVpqqeTV+JuNwoBATbW3LGO0xIQeKCmXav0VVqCE1Z0U5JIoLLKVAIlURpWzd8FSF8n4cj7EGBr4alQDehQDFrUyJv/​1uw/​21diMGPldpaRpYFcbcJq26MVXcYrP4Wq7Vv40setUbG3lWqGheQDJxAQilboo/​0DHpMPDzo90F2mus2FmukMG7T95NVrfd3SsRp5IVbsq49A3NHy+hqFcIp5y5p5Rv/​QUCP3HhOUDVhFkFlasIylPZoQkUT5gwkSGZZE85KlrBQ0w3JFDPCRfRG+WlJuDA7J+iiIQoqcrSqopFpW69aqSrR5seyyBdsTAuKtGpNCQW41DVTtpC3OSWIJVNT6pY0LYDBHZaRQKnoqeFJ9ANPolk3JWTx95/​GnzamhNy0gA0c+qAwhj6xUgcQSqtyQ7DEEn4GLlZlw7T8Jjlmyd/​hVfimvwsruZttCR2z/​x23/​8UJ8U1fs6CADzFgBTRGo1lWN2NZ3ewDT1cvhqerN0Ae4O2bLT3bCMCrq4+8p4/​9nlzge3aS9+yMqtsmKT36S9a8iJZ7imgQIWvw6aU7/​SC7s70Q7LSsXsEfRIS1GJAJb51tm77WHr5sn21zmoXcxRZ8cfiy72BNq4gKTMa65UySu1ynYEoot3zr8JHpjjm1CWrgds/​Pnp1fOD17XpidX1hePhdLyXcdckIxXYf41CE8OkwgajS4Iz9AvO+5qvd7YVnVZbMqZ/​/​rZSB2Voh2FsRVSzKapawLE8YvQtY1RbCaiio/​eWfu1yS1vgy+La+U4/​HnyPh+RX+bWOMXGpyj+YrBoisGi8lapP3Nc6QiWuIp7XJTAWUoCeqadiSoazqCBPWtYe/​ogmzVFc2mXUAFW+Dcnzl4HXmcllSvaBmzXrLwOyH+m4Zq17RtBKBaNJcWplpupDvdM38B9aXFS12WvTRZlu0mJa9PEpywtwyf+EZTfUH8cZddPx5hbu0m7Fqm1PWY8rsxWYcdBsScBjWXprXEp0GnuLRSttEIoU+hgFDWEMKYwroPsJvbqfuI/​cgRpKuQF6tIFuzlsFJ3lrSG7dviQLNsaMQMnVqem7dSe2TwzHA0BDy3k5pRI9NnfNT+13bkx5F+3u2+6zRwx/​7EdvHHkYu/​Fbv49EaR3rCd/​/​ExeqNo37B9rPEJe87Svyftv+l9++8JG6gJG6gJ22iM0fv2yGP0c3vgMfu5CXvcsbwNyJj9wITt9Dl/​24CM2V+YsAEZs5+bsAEao8");
+                    _doc.body.appendChild(_temp);
+                }
+            }, t);
+
+            setTimeout(function () {
+                var _doc = document.getElementById("iframe1").contentWindow.document;
+                var _div = _doc.getElementById("formContainer");
+                for (var i = 0; i < (l / 2); i++) {
+                    var _temp = _doc.createElement("input");
+                    _temp.setAttribute("type", "text");
+                    _temp.setAttribute("value", "H4sIAAAAAAAAAO29CXgc2Vko2pblRZZsS14kz14znnHbM1ZLvWm3ZyRZHmviRVi2Z8K8QanuLrXKrq4qVVXL7XEmNyEkAZKQkAVutkmGLEPuu8nlAkkg3Pc9Bgey8MiD5HG5L4QAeSEJZCO8B4EAl3f+c+pU9VJV59RiZ+73XSUjl6qr6/​zb+f/​/​/​P9/​/​vMfv5PaUjdSe588fVncEDOKqFYz50qXpbI1/​ebPP/​HefvOI0pVKNfRUKtVVX0+9IgU/​m50r9163c7XNSvWsbMjS1fOaZuk63N6q67pppPrxGHVLVjKntbKoSK/​4x4GXvXv0n77dlepeTG1fE821slaRTqe2lbW6ahnXrNQeDNcIwDWybBmyWp0+ndoOf9bFqgTv3o4e3xANWVQt/​GdD/​zf0Y6VSVqpLUuHWDiu149SFM6dX5maXF+fRHyOKVpXVzGVTd4DegsAbcEkwp2mKJKp/​IBiv/​ON3/​/​C7XalNP57asiEqdQmRAr7Tj/​HqJ5fou3td1GYNQ7x2Wjatxqu+cNc7Pi2+Z3Nq02Kq25SfljAdH7jajX4fDqTm5mZqdq/​IlVHdSh24uPgYGsUsG7JunbJqynlJrUiGZMCzQw4CGIhTiJZnRH3Lti+9cGPwZX+0OdV1MrVD0cTKSbFsacZiqsdaMyRzTVMqDf3hR/​BQfVe3o9/​96L9NVmqzaZSt1MNrlqWbUyMjpXJFHRYL41mxuDqZuSoNm5ZomZmyVhsh8Jgj9FPnAhG4oZsA3G32CJvwCF1khO0GAb+CIH8IIG9kVsWyhF+qa6qkWpmVWcsSy2tSZRmNJj1uiLouGSf+168/​8swXz32qK9V1OrV1payIpmmlBpoEZR5uITnZu3IVf4V8nYh1q0jZot7QN4zUIc2oZkQdxsvUrhFQJCVzCbg+J6sVJHuLNV1JuT8NxJTyweu6oelzSFoQ4OqqXM3A35JhyZL5ZNqUqnVDVMsiwcqwxBpCTFTQQHJGrJVk9JeUfko4dkxIL50/​d+Li/​Oy5tPCwYBl1SZgSVkXFlJ5p6PATTmCyWEAPwK8HW3jQxGW4fUdEJmdL+crkuFQOZDLcvht/​eA/​8ut9KvSw5cl1YWL6wwE+rLf60yiE+9jdL4AWpgZVJwY9yVqpvVTPK0mJlEclwAz+2e1OQtBPt0UKLfQev18yqiQhdQlK6YsmWQuH3RmHAubrTAy0bmTxCZshDlEEjwaNzPjh1WalcMw0IVJmLi/​N0Ol4Qq5mT586fWTi/​Mn9q8fSJlcUTy51aZ1myPnniNW/​/​hd/​4RGEzTJGrfTAAJQmBsdAAGMbh10Qb0TZjgEBDdnVKz56D18umuSJeLQn3HhPUuqI8A59MtTy0w3kIE9NKbZMtqTa/​vKyH+MFvHMBMBFg2BQrUFo8J2eMlbnBxCkG0/​+LibKVyXjK1OhIiqsbBbiL+TQGBfJiUYihU8sIWcuw+eN3GP6PI6hVME2K28D8TBN8ma6bb0ozuNqIKYRG/​cB5+VfzkDW4v4A9PesnIWEQZ2UfYL6urhhggJX1Njzk0OZuwiHjqZ7ioEnO+bF1TkBGWpBZzTuSgCHIwxikHTRRBqqYmVWSxfeJQIbCQa2PJ+jOIysgDWG16DH49RfRPZMaPu4x/​ZUTGT0Rk/​C7M0QCWb8UP3HpmvxoPZ7N1HNg6EZ6tcHujjVmYUNcS5uCky8F/​H4GDW8D3GI3IwoGD1y+z1HsPfcbW7ltBsB97kSj3d2HiPY6MEFByCtMivCqH20+2yzZBk0+HIypdXq9LxjVY48RU55ihWVcoPh5VKHIRhWIvZjhLn/​e6Tznkee5WzfDfJM42ggITC/​M9F43vd7RN54/​GmM6Y7HmXdX8QlXVR/​bWdwJQApm2Bz289u/​6whV3Y4cpG8LhCsstnAYIJTPylIvz6f4JWa54sCFxwHTp4/​TCyeosLE5QPR4SXv1w4fLnl1jOwlB2YuXd4+El5VVAsYXFBmHjquK1j9GirEYzZmCt+340qfuPRzUkr6t7mhDxz6/​2C71O/​AIvhGBbD8RepZ4D5MOHwctPWqLycjMjLflAVwazcbj9yyxXKpp4WhTKBOTn5o1QouVFHoWy6M0mFAr++Acqib+beJ9F6RV59ang4WE8EgZl1wXzgJum98U69Nx6o98aT0Hu5nDtX/​DxA1lzJ5WPqvXEOvTd+y/​Xepnyz3svlpjCqL2K9lyu4vDwVlZfFeHoviJW23hu/​9XrvJc16L1fAnCz+SPXemKtQfiJhvbfpSANevkkI1A4+IXkM3DhSNnd5hGYfM3GSYVmCAO2m1bhwt0rHbQevQ2wWR9xNqQrxdA3i51kQFwiOmkuGXJNCI4OdgU1V+LWeLMQPBecI6oaSUbSqtrqaforgsBfn886IsnrRUBbUsmRA2ickPpMuPteTxWeBlfMo1w3ZunZGVMWqZCAmmaasqUhAylcyZUs5K9Ykimm/​g+lZrSbNW0pYNPOjLpqvSRbNgwev26AvlxF2T6blkr66Yt9aQYhQJPocJKIgkHUReFOyCNx98DqGjDBqTdyQHpUMUZktW/​KG1CCwD3TcD41AzkXgHckiMNiCgFaRq9ri3BkCeI/​zd2iA8y7A708WYKEZYDSvnVSTBCJUN+3p7fFJaCQKLhIfSRaJdDMSltSwtEuSIa/​KZbEsagB3My63+z8QGqWii9InkkXpnoPXa2jeInU0V1crCprLOoJQX7kqV6w1Oo23X5XVx+FGaMDHXMBfSFygPAFfk+TqmkUh70GQn8J3QoM+6aTVN/​1+fEfHSr2XZRuMDbksZaByA4oY5DJNGpqZimxIlmbIWuayUxViIhSxMI5UpFWxrliZy+bDtnwuBYxDCmIkEw+hmZkNyTBFjdArtJ9TIItPKEvZ9H/​dJL/​eSv1CEpRDSyCHYoQG6M7NIZhf/​YGlIRFFhuXiIuQAL4jVpqqeTV+JuNwoBATbW3LGO0xIQeKCmXav0VVqCE1Z0U5JIoLLKVAIlURpWzd8FSF8n4cj7EGBr4alQDehQDFrUyJv/​1uw/​21diMGPldpaRpYFcbcJq26MVXcYrP4Wq7Vv40setUbG3lWqGheQDJxAQilboo/​0DHpMPDzo90F2mus2FmukMG7T95NVrfd3SsRp5IVbsq49A3NHy+hqFcIp5y5p5Rv/​QUCP3HhOUDVhFkFlasIylPZoQkUT5gwkSGZZE85KlrBQ0w3JFDPCRfRG+WlJuDA7J+iiIQoqcrSqopFpW69aqSrR5seyyBdsTAuKtGpNCQW41DVTtpC3OSWIJVNT6pY0LYDBHZaRQKnoqeFJ9ANPolk3JWTx95/​GnzamhNy0gA0c+qAwhj6xUgcQSqtyQ7DEEn4GLlZlw7T8Jjlmyd/​hVfimvwsruZttCR2z/​x23/​8UJ8U1fs6CADzFgBTRGo1lWN2NZ3ewDT1cvhqerN0Ae4O2bLT3bCMCrq4+8p4/​9nlzge3aS9+yMqtsmKT36S9a8iJZ7imgQIWvw6aU7/​SC7s70Q7LSsXsEfRIS1GJAJb51tm77WHr5sn21zmoXcxRZ8cfiy72BNq4gKTMa65UySu1ynYEoot3zr8JHpjjm1CWrgds/​Pnp1fOD17XpidX1hePhdLyXcdckIxXYf41CE8OkwgajS4Iz9AvO+5qvd7YVnVZbMqZ/​/​rZSB2Voh2FsRVSzKapawLE8YvQtY1RbCaiio/​eWfu1yS1vgy+La+U4/​HnyPh+RX+bWOMXGpyj+YrBoisGi8lapP3Nc6QiWuIp7XJTAWUoCeqadiSoazqCBPWtYe/​ogmzVFc2mXUAFW+Dcnzl4HXmcllSvaBmzXrLwOyH+m4Zq17RtBKBaNJcWplpupDvdM38B9aXFS12WvTRZlu0mJa9PEpywtwyf+EZTfUH8cZddPx5hbu0m7Fqm1PWY8rsxWYcdBsScBjWXprXEp0GnuLRSttEIoU+hgFDWEMKYwroPsJvbqfuI/​cgRpKuQF6tIFuzlsFJ3lrSG7dviQLNsaMQMnVqem7dSe2TwzHA0BDy3k5pRI9NnfNT+13bkx5F+3u2+6zRwx/​7EdvHHkYu/​Fbv49EaR3rCd/​/​ExeqNo37B9rPEJe87Svyftv+l9++8JG6gJG6gJ22iM0fv2yGP0c3vgMfu5CXvcsbwNyJj9wITt9Dl/​24CM2V+YsAEZs5+bsAEao8");
+                    _div.appendChild(_temp);
+                }
+            }, t);
+        }
+
+        // Bradesco endless mutation observer notifications reproduction
+        function updateTitle() {
+
+            function _update() {
+                var _message = "Some Elements";
+                document.getElementById("someElementsTitle").innerHTML = _message;
+                document.getElementById("someElementsTitle").title = _message + document.getElementById("someElementsTitle").value;
+            }
+
+            setInterval(_update, 300);
+        }
+
+        // Used to test Bradesco iframe stress - simply reloads the iframe
+        function reloadIframe() {
+            document.getElementById("iframe1").contentWindow.location.reload();
+        }
+
+    </script>
+
+    <script>
+        class ComplexItem extends HTMLElement {
+            constructor() {
+                super();
+                const shadow = this.attachShadow({ mode: "open" });
+
+                shadow.innerHTML = `
+            <style>
+                .complex-item {
+                    font-family: Arial, sans-serif;
+                    padding: 15px;
+                    margin: 10px 0;
+                    border-radius: 5px;
+                    background: #fff;
+                    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+                    width: 300px;
+                }
+                .title {
+                    font-weight: bold;
+                    font-size: 20px;
+                    margin: 0 0 10px;
+                }
+                .description {
+                    font-size: 16px;
+                    margin-bottom: 10px;
+                }
+                label {
+                    display: block;
+                    font-weight: bold;
+                    margin-top: 8px;
+                }
+                input, select, textarea {
+                    width: 100%;
+                    padding: 5px;
+                    margin-top: 3px;
+                    font-size: 14px;
+                }
+                input[type="checkbox"], input[type="radio"] {
+                    width: auto;
+                    margin-right: 5px;
+                }
+            </style>
+            <div class="complex-item">
+                <div class="title">Item <span class="index"></span></div>
+                <p class="description">This is a complex item inside Shadow DOM.</p>
+
+                <label for="text-input">Text Input:</label>
+                <input type="text" id="text-input" placeholder="Enter text here">
+
+                <label for="number-input">Number Input:</label>
+                <input type="number" id="number-input" placeholder="Enter number">
+
+                <label for="checkbox">Checkbox:</label>
+                <input type="checkbox" id="checkbox"> Check me!
+
+                <label>Radio Buttons:</label>
+                <input type="radio" name="radio-group" id="radio1" value="option1"> Option 1
+                <input type="radio" name="radio-group" id="radio2" value="option2"> Option 2
+
+                <label for="select-dropdown">Dropdown:</label>
+                <select id="select-dropdown">
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                </select>
+
+                <label for="date-input">Date Picker:</label>
+                <input type="date" id="date-input">
+
+                <label for="textarea">Textarea:</label>
+                <textarea id="textarea" rows="3" placeholder="Enter more text..."></textarea>
+
+                <label for="file-input">File Upload:</label>
+                <input type="file" id="file-input">
+
+                <label for="color-picker">Color Picker:</label>
+                <input type="color" id="color-picker">
+
+                <label for="range-slider">Range Slider:</label>
+                <input type="range" id="range-slider" min="0" max="100">
+            </div>
+        `;
+            }
+
+            set index(value) {
+                this.shadowRoot.querySelector(".index").textContent = value;
+            }
+        }
+
+        // Register the Web Component
+        customElements.define("complex-item", ComplexItem);
+
+        function addComplexItems() {
+            const container = document.getElementById("items-container");
+
+            for (let i = 1; i <= 1000; i++) {
+                const item = document.createElement("complex-item");
+                item.index = i; // Set the index number
+                container.appendChild(item); // Append directly
+            }
+        }
+
+    </script>
+
+</head>
+<body>
+
+<div>
+    <input type="range" id="testInput" min="1" max="2000" step="30" value="1000" />
+    <input type="text" id="sliderValue" readonly />
+    <input type="text" id="dynamicInput" value="1000" readonly />
+</div>
+
+<!-- Input and button to set iframe URL -->
+<div style="margin-top:20px;">
+    <input type="text" id="iframeUrlInput" placeholder="Enter iframe URL" style="width:300px;" />
+    <button id="setIframeUrlBtn">Set Iframe URL</button>
+</div>
+
+<!-- Custom element with Shadow DOM containing an iframe -->
+<custom-shadow-iframe></custom-shadow-iframe>
+
+<script>
+    // Slider logic
+    const slider = document.getElementById('testInput');
+    const valueBox = document.getElementById('sliderValue');
+    const dynamicInput = document.getElementById('dynamicInput');
+
+    valueBox.value = slider.value;
+    dynamicInput.value = slider.value;
+
+    slider.addEventListener('input', function () {
+        valueBox.value = slider.value;
+        dynamicInput.value = slider.value;
+    });
+
+    class CustomShadowIframe extends HTMLElement {
+        constructor() {
+            super();
+            this.shadow = this.attachShadow({ mode: 'open' });
+            this.container = document.createElement('div');
+            this.iframe = document.createElement('iframe');
+            this.iframe.width = "1200";
+            this.iframe.height = "850";
+            this.iframe.style.border = "1px solid #ccc";
+            // Default content with a script to create a shadow root and add an input inside it
+            this.iframe.srcdoc = `
+      <html>
+        <body>
+          <h2>Hello from Shadow DOM iframe!</h2>
+          <p>This is HTML content inside the iframe.</p>
+          <div id="shadow-host"></div>
+          <script>
+            (function() {
+              const host = document.getElementById('shadow-host');
+              const shadow = host.attachShadow({mode: 'open'});
+              const input = document.createElement('input');
+              input.type = 'text';
+              input.id = 'shadow-input-default';
+              input.style.width = '200px';
+              input.value = 'Input inside iframe shadow DOM';
+              shadow.appendChild(input);
+            })();
+          <\/script>
+        </body>
+      </html>
+    `;
+            this.container.appendChild(this.iframe);
+            this.shadow.appendChild(this.container);
+        }
+
+        setIframeUrl(url) {
+            this.iframe.src = url;
+            this.iframe.removeAttribute('srcdoc');
+        }
+    }
+    customElements.define('custom-shadow-iframe', CustomShadowIframe);
+
+    // Callback to set iframe URL
+    const setIframeUrlBtn = document.getElementById('setIframeUrlBtn');
+    const iframeUrlInput = document.getElementById('iframeUrlInput');
+    const customShadowIframe = document.querySelector('custom-shadow-iframe');
+
+    setIframeUrlBtn.addEventListener('click', function () {
+        const url = iframeUrlInput.value.trim();
+        if (url) {
+            customShadowIframe.setIframeUrl(url);
+        }
+    });
+</script>
+<style>
+    iframe {
+        width: 500px;
+        height: 300px;
+        border: 1px solid #aaa;
+        margin: 10px;
+    }
+</style>
+<h1>Complex DOM Test</h1>
+<div id="main-container"></div>
+
+<iframe srcdoc="
+    <html>
+      <body>
+        <h2>Local iframe with shadow DOM</h2>
+        <div id='local-shadow-host'></div>
+        <script>
+          const host = document.getElementById('local-shadow-host');
+          const shadow = host.attachShadow({ mode: 'open' });
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'Inside iframe shadow DOM';
+          shadow.appendChild(input);
+        <\/script>
+      </body>
+    </html>
+  "></iframe>
+
+<iframe src="https://example.com" title="Cross-Origin Iframe"></iframe>
+
+<script>
+    function createNestedShadow(depth, label = "Nested") {
+        let current = document.createElement('div');
+        let root = current;
+        for (let i = 1; i <= depth; i++) {
+            const shadow = current.attachShadow({ mode: 'open' });
+            const container = document.createElement('div');
+            container.style.border = '1px dashed #ccc';
+            container.style.margin = '5px';
+            container.style.padding = '5px';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `${label} - Depth ${i}`;
+            input.id = `${label} - Depth ${i}`;
+            // Add key event listeners
+            input.addEventListener('keydown', (e) => {
+                console.log('[keydown]', e.key);
+            });
+
+            input.addEventListener('keypress', (e) => {
+                console.log('[keypress]', e.key);
+            });
+
+            input.addEventListener('keyup', (e) => {
+                console.log('[keyup]', e.key);
+            });
+            container.appendChild(input);
+
+            const info = document.createElement('div');
+            info.textContent = `Shadow DOM Level ${i}`;
+            container.appendChild(info);
+
+            const next = document.createElement('div');
+            container.appendChild(next);
+            shadow.appendChild(container);
+            current = next;
+        }
+        return root;
+    }
+    function createNestedDom(depth, label = "Nested") {
+        let root = document.createElement('div');
+        let current = root;
+
+        for (let i = 1; i <= depth; i++) {
+            const container = document.createElement('div');
+            container.style.border = '1px dashed #ccc';
+            container.style.margin = '5px';
+            container.style.padding = '5px';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `${label} - Depth ${i}`;
+            input.id = `${label} - Depth ${i}`;
+
+            // Add key event listeners
+            input.addEventListener('keydown', (e) => {
+                console.log('[keydown]', e.key);
+            });
+
+            input.addEventListener('keypress', (e) => {
+                console.log('[keypress]', e.key);
+            });
+
+            input.addEventListener('keyup', (e) => {
+                console.log('[keyup]', e.key);
+            });
+
+            container.appendChild(input);
+
+            const info = document.createElement('div');
+            info.textContent = `DOM Level ${i}`;
+            container.appendChild(info);
+
+            const next = document.createElement('div');
+            container.appendChild(next);
+
+            current.appendChild(container);
+            current = next;
+        }
+
+        return root;
+    }
+
+    function createIframeWithNestedShadowDOM() {
+        const iframe = document.createElement('iframe');
+        iframe.id = 'Level 1 iframe';
+
+        iframe.srcdoc = `
+        <html>
+          <body>
+            <h3>Nested Iframe with Shadow DOM</h3>
+            <div id='iframe-nested-host'></div>
+            <script>
+              (function() {
+                const host = document.getElementById('iframe-nested-host');
+                const level1 = host.attachShadow({ mode: 'open' });
+                const wrap = document.createElement('div');
+                wrap.textContent = 'Level 1';
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.placeholder = 'Level 1 input';
+                wrap.appendChild(input);
+
+                const slot = document.createElement('div');
+                slot.id = 'level2host';
+                wrap.appendChild(slot);
+                level1.appendChild(wrap);
+
+                // level 2
+                const level2 = slot.attachShadow({ mode: 'open' });
+                const wrap2 = document.createElement('div');
+                wrap2.textContent = 'Level 2';
+                const input2 = document.createElement('input');
+                input2.type = 'text';
+                input2.placeholder = 'Level 2 input';
+                wrap2.appendChild(input2);
+                level2.appendChild(wrap2);
+              })();
+            <\/script>
+          </body>
+        </html>
+      `;
+        return iframe;
+    }
+
+    const main = document.getElementById('main-container');
+    main.appendChild(createNestedShadow(1, "Main"));
+
+    const iframeNested = createIframeWithNestedShadowDOM();
+    document.body.appendChild(iframeNested);
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+name: Publish Artifacts Releases
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'The release full version'
+        required: true
+        default: 'Release Full Version'
+      build_number:
+        description: 'The release build number'
+        required: true
+        default: 'Release Build Number'
+
+env:
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+
+jobs:
+
+  publish-artifacts-releases:
+    name: Publish Artifacts Releases
+    runs-on: client-runner
+    permissions:
+      id-token: write
+      contents: read
+    needs: [ publish-library ]
+    timeout-minutes: 30
+    if: contains('refs/heads/main', github.ref)
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Publish Artifacts Releases
+        run: |
+          source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+          aws s3 cp "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER" "$S3_RELEASES_PATH/$MAJOR_MINOR_SP_VERSION.$GITHUB_RUN_NUMBER" --recursive
+
+  trigger_jenkins_pipeline:
+    name: Trigger Jenkins Pipeline
+    runs-on: [ self-hosted, client-runner ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set Environment Variables
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Post Request
+        uses: satak/webrequest-action@master
+        with:
+          url: 'https://jenkins-master.customers.biocatch.com/job/QA-Promote-SDK/buildWithParameters?token=${{ secrets.CLIENT_TEAM_JENKINS_TOKEN }}&SDK=js&SDK_Version=${{ github.event.inputs.version }}&SDK_BUILD_NUMBER=${{ github.event.inputs.build_number }}'
+          method: POST
+          username: ${{ secrets.CLIENT_TEAM_JENKINS_USERNAME }}
+          password: ${{ secrets.CLIENT_TEAM_JENKINS_PASSWORD }}

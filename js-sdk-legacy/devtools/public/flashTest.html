@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Machine Finger Print test</title>
+<script type="text/javascript" src="FlashUtil.js"></script>
+<script type="text/javascript" src="MachineFingerPrint.js"></script>
+<script type="text/javascript">
+window.onload = function () {
+	console.time("flashCalc");
+	if (FlashUtil.detectIsFlashInstalled()) {
+		FlashUtil.embedFlashObject();
+	}
+    setTimeout(SetFlashMuid, 500);
+}
+
+function SetFlashMuid() {
+	if (flashRetry > 0) {
+		if(SlothInc.isffsReady) {
+			flashRetry = 0;
+			flashMuid = FlashUtil.readFlashCookie('bmuid');
+			if (isUndefinedNull(flashMuid) ||  flashMuid === '' ) {
+				flashMuid = Math.uuid();
+				FlashUtil.writeFlashCookie('bmuid', flashMuid);
+				console.endTime("flashCalc");
+			}
+		}
+		else {
+			flashRetry = flashRetry - 1;
+			setTimeout(SetFlashMuid, 1000);
+		}
+	}
+}
+
+function isUndefinedNull(x) {
+    return (typeof(x) === "undefined" || x === null || x === undefined);
+}
+
+
+</script>
+</head>
+<body>
+<h1>
+Flash
+
+Thanks
+</h1>
+<div id="logDisplay"></div>
+</body>
+</html>

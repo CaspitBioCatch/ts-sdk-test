@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test USB</title>
+    <script type="text/javascript">
+        function testUSB() {
+            let button = document.getElementById('request-device');
+            button.addEventListener('click', async () => {
+                try {
+                    var device = await navigator.usb.requestDevice({ filters: []});
+                } catch (e) {
+                    // No device was selected.
+                    console.log("error",e);
+                }
+
+                if (device !== undefined) {
+                    // Add |device| to the UI.
+                }
+            });
+        }
+
+        window.onload = function () {
+            testUSB();
+        }
+    </script>
+</head>
+<body>
+
+</body>
+</html>

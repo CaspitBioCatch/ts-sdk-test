@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <script src="hybridUtils.js"></script>
+    <meta name='bcsid' content='devTeamTest'></meta>
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='cdConfLocation'
+          content='https://wup-dtrackers.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=dtrackers'/>
+    <meta name='cdLogAddress'
+          content='https://log-dtrackers.bc2.customers.biocatch.com/api/v1/sendLogs'/>
+
+    <script type="text/javascript">
+
+        function callFlushApi() {
+            cdApi.client.flush();
+        }
+
+        function callResetSessionApi() {
+            window.postMessage({type: 'ResetSession', resetReason: 'customerApi'}, window.location.href);
+        }
+
+        function callSetPsidApi() {
+            var psid = document.getElementById('psidValue').value;
+            window.postMessage({type: 'cdSetPsid', psid: psid}, window.location.href);
+        }
+
+        function callContextApi() {
+            var ctxName = document.getElementById('contextName').value;
+            window.postMessage({type: 'ContextChange', context: ctxName}, window.location.href);
+        }
+
+        function callChangeStateApi() {
+            var stateName = document.getElementById('stateName').value;
+            if (stateName !== 'run' && stateName !== 'pause') {
+                return;
+            }
+
+            window.postMessage({type: 'cdChangeState', toState: stateName}, window.location.href);
+        }
+
+        function getConnectionType() {
+            document.getElementById('connectionType').value = window.navigator.connection ? window.navigator.connection.type : 'not supported';
+        }
+
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            const csid = urlParams.get('csid');
+            const agentType = urlParams.get('agentType');
+            const collectionMode = urlParams.get('collectionMode');
+            const sessionHistory = urlParams.get('sessionHistory');
+            const csidSource = urlParams.get('csidSource');
+
+            startSession(csid, agentType, collectionMode, sessionHistory, csidSource);
+
+        }
+    </script>
+</head>
+<body>
+<div>
+    <input type="text" value="testInput" id="payee_id_for_Robert_Nortan" data-bc="payee_id_for_Robert_Nortan_123456data-bc DATA">
+    <ul class="numClave">
+
+        <li><a href="#" name="_i8" id="_i8">8</a></li>
+        <li><a href="#" name="_i7" id="_i7">7</a></li>
+        <li><a href="#" name="_i4" id="_i4">4</a></li>
+        <li><a href="#" name="_i3" id="_i3">3</a></li>
+        <li><a href="#" name="_i6" id="_i6" data-bc="_i6">6</a></li>
+        <li><a href="#" name="_i1" id="_i1">1</a></li>
+        <li><a href="#" name="_i5" id="_i5">5</a></li>
+        <li><a hhref="#" name="_i9" id="_i9">9</a></li>
+        <li><a href="#" name="_i0" id="_i0">0</a></li>
+        <li><a href="#" name="_i2" id="_i2">2</a></li>
+
+    </ul>
+</div>
+
+</div>
+<br/>
+<br/>
+
+<!--The control panel-->
+<fieldset class="detailForm borderless">
+    <h1>The Control Panel</h1>
+
+    <span>Click to reset the session:</span> <button id='resetSession' title="Reset Session" onclick='callResetSessionApi();'>Call ResetSession API</button>
+
+    <br/>
+    <br/>
+    <br/>
+
+    <span>Enter PSID:</span> <input id='psidValue' data-bc="psidValue" value="PSID-DEV" name="psidValue"/>
+    <button id='setPsid' title="set PSID" onclick='callSetPsidApi();'>Call SetPSID API</button>
+
+    <br/>
+    <br/>
+    <br/>
+
+    <span>Click to flush the session:</span> <button id='flushSession' title="Flush Session" onclick='callFlushApi();'>Call Flush API</button>
+
+</fieldset>
+
+<h1>Some elements</h1>
+
+<span id="someElementsTitle"></span>
+
+<fieldset class="detailForm borderless">
+    <div>
+        <span>Date:</span>
+        <input name="dateMask" id="_i8" data-inputmask-alias="datetime"
+               data-inputmask-inputformat="dd/mm/yyyy" im-insert="false" placeholder="MM/DD/YYYY">
+    </div>
+</fieldset>
+<br/>
+<h2>jQuery Auto Tab Plugin - Masking Test</h2>
+<fieldset class="detailForm borderless">
+    <div>
+        <span>Number Filter</span>
+        <input type="text" name="autoTabNumberTest" id="numberAutoTabTest" placeholder="">
+    </div>
+</fieldset>
+<br/>
+<div style="width:100%; height: 300px; background-color: #aaa; touch-action: none;">
+    <pre>touch-action: none</pre>
+    . Use for pinch/zooming tests
+</div>
+
+Enter context name: <input id='contextName'/>
+<button id='contextApi' title="click for context change" onclick='callContextApi();'>Call ContextChange Api</button>
+<input type='button' id='connectionType' title="click for connection type" onclick='getConnectionType();'
+       value='Get navigator.connection type'/>
+<br/>
+<br/>
+Enter state name: <input id='stateName'/>
+<button id='stateApi' title="click for state change" onclick='callChangeStateApi();'>Call Change State Api</button>
+<br/>
+<br/>
+<button id="request-device">Test USB</button>
+<br/>
+<input type="text" id="calcResult">
+<br/>
+Password field: <input id='pass' type='password'/>
+<br/>
+Email field: <input name="email" id='email' type='email' title="email address"/>
+<br/>
+<b>Print window messages to console:<b/> <input id="printWM" type='checkbox' checked='true'/>
+    <br/>
+    <input type='button' id='btn' checked='true' value='input button'/>
+    <br/>
+    <input type='text' id='txt' value='input text'/>
+    <br/>
+    <input id='r1' type="radio" name="gender" value="male" checked> Male<br>
+    <input id='r2' type="radio" name="gender" value="female"> Female<br>
+    <input id='r3' type="radio" name="gender" value="other"> Other <br>
+    <br/>
+    <input id='date' type="date"/>
+    <br/>
+    <input id='dateTimeL' type="datetime-local"/>
+    <br/>
+    <input id='month' type="month"/>
+    <br/>
+    <h3>Mobile Console</h3>
+    <input type='button' id='clearConsole' value='Clear Mobile Console'/>
+    <br/>
+    <table ui-gbb-sticky-thead-ng="" id="stick-table" class="table table-hover Fixed_Header data-table" ng-init="ext.helpers.consolidatedTransactions($ctrl)">
+    </table>
+    <br/>
+
+
+    <select id="compressBy">
+        <option value="protobuf">protobuf</option>
+        <option value="msgpack">msgpack</option>
+        <option value="jsonh">jsonh</option>
+    </select>
+    <h6 id="compressRatio">
+
+    </h6>
+    <br/>
+    <textarea rows="25" cols="100" id="compressTA">
+
+	</textarea>
+    <br/>
+    <br/>
+    <div class="slidecontainer">
+        <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+    </div>
+
+</b>
+</body>
+</html>

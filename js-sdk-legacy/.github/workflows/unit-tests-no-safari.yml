@@ -1,0 +1,143 @@
+name: Unit Tests - No Safari Workflow
+
+on:
+  workflow_dispatch:
+
+env:
+  BUILD_REPORTS_FOLDER_PATH: ./build_reports
+  TEST_REPORTS_FOLDER_PATH: ./build_reports/test_report_artifacts
+  CODE_COVERAGE_REPORTS_FOLDER_PATH: ./build_reports/test_coverage_report_artifacts
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+  S3_BUILDS_PATH: s3://rnd-bcdn/clientDev/js/builds
+  NETWORK_TIMEOUT: 100000
+  NODE_JS_VERSION: 20
+
+jobs:
+  build-library:
+    name: Build Library
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache Yarn Packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install Dependencies
+        run: |
+          yarn global add retry-cli
+
+          $(yarn global bin)/retry -- yarn
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run ESLINT
+        run: yarn run eslint
+      - name: Build Release
+        run: yarn run build
+      - name: Build Debug
+        run: yarn run builddev
+      - name: Build Obfuscated
+        run: yarn run buildObfuscate
+      - name: Upload Library Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: library_artifacts
+          path: dist/**
+          if-no-files-found: error
+      - name: Upload Temp Library Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: temp_library_artifacts
+          path: tempClasses/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [ build-library ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          build-name: ${{ env.GITHUB_RUN_NUMBER }}
+          project-name: js-sdk
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
+      - name: Run Tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            #Run the unit tests
+            $(yarn bin)/grunt ci-unit-tests-excluding-ios-min-output --no-deprecation
+      - name: 'BrowserStackLocal Stop'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-unit
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error

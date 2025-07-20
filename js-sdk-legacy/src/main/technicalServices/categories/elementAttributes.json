@@ -1,0 +1,8 @@
+{
+  "attributes": [
+    "name", "id", "placeholder", "aria-label", "data-label", "aria-describedby",
+    "title", "autocomplete", "data-placeholder", "data-hint", "aria-placeholder",
+    "aria-labelledby", "formcontrolname", "role", "data-type", "data-field",
+    "data-name", "inputmode", "data-test-id", "data-value", "data-format"
+  ]
+}

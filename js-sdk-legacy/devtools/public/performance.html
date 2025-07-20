@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="materialize/css/materialize.css"  media="screen,projection"/>
+    <script>
+        const annoyingInterval = null;
+        const annoyingDom = () => {
+            setInterval( () => {
+
+            }, 100);
+        }
+        const perfTasks = {
+            'array_index': () => {
+                const markKey = "array_index";
+                performance.mark(markKey);
+                if (typeof window.navigator['platform'] !== "undefined") {
+                    performance.mark(markKey + "_end");
+                    performance.measure("array_index", markKey, markKey + "_end");
+                }
+            },
+            'for_in': () => {
+                const markKey = "for_in";
+                performance.mark(markKey);
+                if ('platform' in window.navigator) {
+                    performance.mark(markKey + "_end");
+                    performance.measure("for_in", markKey, markKey + "_end");
+                }
+            },
+            'window.observer': () => {
+
+            }
+        }
+        window.onload = function () {
+            const container = document.querySelector("div.container div.row");
+            const runTasks = async () => {
+                for (const key in perfTasks) {
+                    await new Promise( (resolve) => {
+                        setTimeout(() => {
+                            perfTasks[key]();
+                            resolve();
+                        }, 100);
+                    });
+                }
+            }
+            runTasks().then( () => {
+                const measurements = performance.getEntriesByType("measure");
+                for (let i=0; i < measurements.length; i++) {
+                    const nextMeasure = measurements[i];
+                    const nextDiv = document.createElement('div');
+                    nextDiv.setAttribute('class', 'col s2');
+                    nextDiv.innerText = `Entry: ${nextMeasure['name']} Duration: ${nextMeasure['duration']}`;
+                    container.append(nextDiv);
+                }
+                performance.clearMarks();
+                performance.clearMeasures();
+            });
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <p>Performance measurements</p>
+    </div>
+</div>
+<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
+</body>
+</html>

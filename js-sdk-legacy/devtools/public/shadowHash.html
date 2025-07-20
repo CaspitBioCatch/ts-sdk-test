@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<title>Shadow Hash</title>
+	<meta name="cdConfLocation" content="https://wup-client.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=client" />
+	<meta name="cdLogAddress" content="https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs" />
+	<meta name="cdWorkerUrl" content="customerJs/worker_DevVersion.js" />
+	<meta name="my_csid" content="bob-csid" />
+	<script type="text/javascript" src="./customerJs/DefaultCustomerApi.js"></script>
+	<script type="text/javascript" src="./customerJs/slothDebug_DevVersion.js"></script>
+	<base href="./" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+
+<body>
+<div id="container"></div>
+
+<!-- Add a button to trigger the creation of custom input elements -->
+<button id="createButton">Create Custom Inputs</button>
+
+<!-- Input field to specify the number of custom inputs to create -->
+<input id="inputCount" type="number" placeholder="Enter count" />
+
+<script>
+	let index = 0
+	class CustomInput extends HTMLElement {
+		constructor() {
+			super();
+
+			// Attach a shadow DOM to the custom element
+			const shadow = this.attachShadow({ mode: 'open' });
+
+			// Create an input element
+			const input = document.createElement('input');
+			input.id = `CustomInput_id` + index;
+			input.name = `CustomInput_name` + index;
+			input.placeholder = 'Enter text ' + index ;
+
+			// Append the input element to the shadow DOM
+			shadow.appendChild(input);
+			index = index + 1
+
+			// // Optionally, delay any further changes using setTimeout
+			// setTimeout(() => {
+			// 	input.id = `CustomInput_id` + index;
+			// 	input.name = `CustomInput_name` + index;
+			// 	console.warn("ID and Name updated:", input.id, input.name);
+			// }, 3000); // Updates after 3 seconds
+		}
+	}
+	class CustomInput1 extends HTMLElement {
+		constructor() {
+			super();
+
+			// Attach a shadow DOM to the custom element
+			const shadow = this.attachShadow({ mode: 'open' });
+
+			// Create an input element
+			const input1 = document.createElement('input');
+			input1.type = 'text';
+			input1.placeholder = 'Enter text 1';
+
+			// Append the input element to the shadow DOM
+			shadow.appendChild(input1);
+		}
+	}
+	class CustomInput2 extends HTMLElement {
+		constructor() {
+			super();
+
+			// Attach a shadow DOM to the custom element
+			const shadow = this.attachShadow({ mode: 'open' });
+
+			// Create an input element
+			const input2 = document.createElement('input');
+			input2.type = 'text';
+			input2.placeholder = 'Enter text 2';
+
+			// Append the input element to the shadow DOM
+			shadow.appendChild(input2);
+		}
+	}
+
+	// Define the custom elements
+	customElements.define('custom-input', CustomInput);
+	customElements.define('custom-input1', CustomInput1);
+	customElements.define('custom-input2', CustomInput2);
+
+	// Wrapper function to create and append the custom tags
+	function addCustomInput(inputType) {
+		const container = document.getElementById('container');
+
+		// Create new custom-input elements
+		const customInput = document.createElement(inputType);
+
+		// Create a div and append the custom input
+		const div = document.createElement('div');
+		div.appendChild(customInput);
+
+		// Append the div with the custom input to the container
+		container.appendChild(div);
+	}
+
+	// Function to create a specified number of custom inputs
+	function createCustomInputs(count) {
+		for (let i = 0; i < count; i++) {
+			// You can change the type here to create different inputs
+			// E.g., 'custom-input', 'custom-input1', 'custom-input2'
+			addCustomInput('custom-input');
+		}
+	}
+
+	// Attach event listener to the button
+	document.getElementById('createButton').addEventListener('click', () => {
+		// Get the value from the input field
+		const count = parseInt(document.getElementById('inputCount').value, 10);
+
+		// If the input is a valid number, create that many inputs
+		if (!isNaN(count) && count > 0) {
+			createCustomInputs(count);
+		} else {
+			alert('Please enter a valid number');
+		}
+	});
+</script>
+</body>
+
+</html>

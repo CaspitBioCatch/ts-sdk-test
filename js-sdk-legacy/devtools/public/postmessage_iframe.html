@@ -1,0 +1,16 @@
+			<button id='btnFrame1' onClick="triggerMessageInner('Trigger Message from INNER button to INNER listener')">Trigger Message from INNER button to INNER listener</button>
+			<button id='btnFrame2' onClick="triggerMessageToOuter('Trigger Message from INNER button to OUTER listener')">Trigger Message from INNER button to OUTER listener</button>
+
+			<script type='text/javascript'>
+//				window.addEventListener('message', function (e) {
+//					msg = e.data;
+//					console.log("INNER LISTENER- parameters: " + msg.mess);
+//				});
+//
+//				function triggerMessageInner(passedmessage){
+//					window.postMessage({mess:passedmessage},window.location.href);
+//				}
+//				function triggerMessageToOuter(passedmessage){
+//					window.parent.postMessage({mess:passedmessage},window.location.href);
+//				}
+			</script>	

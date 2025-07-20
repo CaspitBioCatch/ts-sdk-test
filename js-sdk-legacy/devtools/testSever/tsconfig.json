@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "umd",
+    "target": "es6",
+    "preserveConstEnums": true,
+    "jsx": "react",
+    "sourceMap": true,
+    "declaration": false,
+    "noLib":false,
+    "allowSyntheticDefaultImports": true
+ },
+  "filesGlob" : [
+    "**/*.ts",
+    "./**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "views"
+  ]
+}

@@ -1,0 +1,610 @@
+name: CI/CD
+
+on:
+  push:
+   branches:
+    - develop
+    - rc
+    - hotfix
+    - main
+    - 'release/**'
+    - 'hotfix/**'
+   paths-ignore:
+    - '.github/scripts/**'
+    
+     
+  pull_request:
+     types:
+       - opened
+       - synchronize
+       - reopened
+     paths-ignore:
+      - '.github/scripts/**'
+
+  workflow_dispatch:
+
+env:
+  BUILD_REPORTS_FOLDER_PATH: ./build_reports
+  TEST_REPORTS_FOLDER_PATH: ./build_reports/test_report_artifacts
+  CODE_COVERAGE_REPORTS_FOLDER_PATH: ./build_reports/test_coverage_report_artifacts
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+  S3_BUILDS_PATH: s3://rnd-bcdn/clientDev/js/builds
+  S3_RELEASES_PATH: s3://rnd-bcdn/releases/js
+  S3_RELEASES_LATEST_PATH: s3://rnd-bcdn/releases/js/latest
+  NETWORK_TIMEOUT: 100000
+  NODE_JS_VERSION: 20
+  LIST_VERSIONS_FILE_NANE: new_list_versions.json
+
+jobs:
+  cancel-previous-builds:
+    name: Cancel Previous Build Runs
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 30
+    steps:
+      - name: Cancel Previous Builds
+        uses: styfle/cancel-workflow-action@0.11.0
+        with:
+          access_token: ${{ github.token }}
+
+  get-short-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps: 
+      - uses: actions/checkout@v4
+      - name: Set Environment Variables
+        id: env-vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+    outputs:
+      SHORT_VERSION: ${{steps.env-vars.outputs.SHORT_VERSION}}
+
+  build-library:
+    name: Build Library
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run ESLINT
+        run: yarn run eslint
+      - name: Build Release
+        run: yarn run build
+      - name: Build Debug
+        run: yarn run builddev
+      - name: Build Obfuscated
+        run: yarn run buildObfuscate
+      - name: Upload Library Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: library_artifacts
+          path: dist/**
+          if-no-files-found: error
+      - name: Upload Temp Library Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: tempClasses/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-unit-tests:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [ build-library ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          build-name: ${{ env.GITHUB_RUN_NUMBER }}
+          project-name: js-sdk
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
+      - name: Run Tests
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 30
+          max_attempts: 3
+          command: |
+            #Run the unit tests
+            $(yarn bin)/grunt ci-unit-tests-excluding-ios-min-output --no-deprecation
+      - name: 'BrowserStackLocal Stop'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-unit
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-integration-tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: [ run-unit-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          build-name: ${{ env.GITHUB_RUN_NUMBER }}
+          project-name: js-sdk
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
+      - name: Run Tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: |
+            #Run the integration tests
+            $(yarn bin)/grunt ci-integration-tests-excluding-ios-min-output
+      - name: 'BrowserStackLocal Stop'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-integration
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-opera-integration-tests:
+    name: Run Opera Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ run-integration-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          build-name: ${{ env.GITHUB_RUN_NUMBER }}
+          project-name: js-sdk
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
+      - name: Run Tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: |
+            #Run the integration tests
+            $(yarn bin)/grunt ci-integration-tests-opera
+      - name: 'BrowserStackLocal Stopci-crossdomain-integration-tests-safari'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-opera-integration
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-slave-integration-tests:
+    name: Run Slave Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ run-opera-integration-tests ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+      - name: Cache Yarn Packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Download Temp Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: temp_library_artifacts
+          path: ./tempClasses
+      - name: Install Dependencies
+        run: |
+          yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Create Test Report Dirs
+        run: |
+          # create dir for the test reports
+          mkdir -p $BUILD_REPORTS_FOLDER_PATH
+          mkdir -p $TEST_REPORTS_FOLDER_PATH
+          mkdir -p $CODE_COVERAGE_REPORTS_FOLDER_PATH
+      - name: 'BrowserStack Env Setup'
+        uses: 'browserstack/github-actions/setup-env@master'
+        with:
+          username: ${{ secrets.BROWSERSTACK_USERNAME }}
+          access-key: ${{ secrets.BROWSERSTACK_ACCESS_KEY }}
+          build-name: ${{ env.GITHUB_RUN_NUMBER }}
+          project-name: js-sdk
+      - name: 'BrowserStackLocal Setup'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: start
+          local-identifier: random
+      - name: Run Tests
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 35
+          max_attempts: 3
+          command: |
+            #Run the unit tests
+            $(yarn bin)/grunt ci-integration-slave-tests-min-output
+      - name: 'BrowserStackLocal Stop'
+        uses: 'browserstack/github-actions/setup-local@master'
+        with:
+          local-testing: stop
+      - name: Upload Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-slave-integration
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error
+
+  merge-coverage-reports:
+    name: Merge Coverage Reports
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: [ run-unit-tests, run-integration-tests, run-opera-integration-tests, run-slave-integration-tests ]
+    steps:
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build_reports-*
+          merge-multiple: true
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Merge Reports
+        run: |
+          yarn global add nyc
+          sudo apt-get install -y lcov
+
+          # Merge all lcov report files
+          lcov -a $CODE_COVERAGE_REPORTS_FOLDER_PATH/unitTests/lcov.info \
+            -o $CODE_COVERAGE_REPORTS_FOLDER_PATH/mergedLcovReportFiles.info
+      - name: Upload Build Test Reports Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_reports-merged
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}/**
+          retention-days: 1
+          if-no-files-found: error
+
+  run-sonar-cloud-scan:
+    name: Run SonarCloud Scan
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    needs: [ merge-coverage-reports ]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+      - name: Download Package Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build_reports-merged
+          path: ${{ env.BUILD_REPORTS_FOLDER_PATH }}
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  publish-library:
+    name: Publish Library
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: read
+    needs: [ run-sonar-cloud-scan ]
+    if:
+      contains('
+      refs/heads/develop
+      refs/heads/rc
+      refs/heads/hotfix
+      refs/heads/main', github.ref)
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: library_artifacts
+          path: ./dist
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Publish
+        run: |
+          source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+
+          aws s3 sync dist "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER" --exclude "*" --include "*.js" --include "*.js.map" --include "debug"
+          aws s3 cp src/main/samples/DefaultCustomerApi.js "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER/DefaultCustomerApi.js"
+          aws s3 cp src/main/samples/HeartBeatSample.js "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER/HeartBeatSample.js"
+          aws s3 cp dist/crossdomain.html "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER/crossdomain.html"
+
+  public-artifacts-releases:
+    name: Publish Artifacts Releases
+    runs-on: ubuntu-latest
+    needs: [ publish-library ]
+    permissions:
+      id-token: write
+      contents: read
+    timeout-minutes: 30
+    if: contains('refs/heads/main', github.ref)
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Environment Variables
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Publish Artifacts Releases
+        run: |
+          source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+          aws s3 cp "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER" "$S3_RELEASES_PATH/$MAJOR_MINOR_SP_VERSION.$GITHUB_RUN_NUMBER" --recursive
+          
+          # Find the file we want to share with flutter in the directory.
+          FILE=$(aws s3 ls "$S3_BUILDS_PATH/$MAJOR_MINOR_SP_VERSION/$GITHUB_RUN_NUMBER/" \
+            | grep -E 'sloth.*min\.js' | awk '{print $4}')
+
+          # Copy the file from the release js folder into the latest folder with a designated name.
+          aws s3 cp "$S3_RELEASES_PATH/$MAJOR_MINOR_SP_VERSION.$GITHUB_RUN_NUMBER/$FILE" "$S3_RELEASES_LATEST_PATH/bundle.min.js"
+        # Add list_version.json update with tag version 
+      - name: Update Version List
+        run: |
+          # Download the list_versions file from S3 and update
+          aws s3 cp "s3://rnd-bcdn/releases/latest/$LIST_VERSIONS_FILE_NANE" "$LIST_VERSIONS_FILE_NANE"
+          
+          source $PIPELINE_SCRIPTS_PATH/update_list_versions.sh
+        
+
+
+  distribute-npm:
+    name: Trigger NPM Upload
+    needs: [ get-short-version, public-artifacts-releases ]
+    uses: ./.github/workflows/npm-workflow.yml
+    if: contains('refs/heads/main', github.ref)
+    secrets: inherit
+    with:
+      short-version: ${{ needs.get-short-version.outputs.SHORT_VERSION }}
+
+  add-version-tag:
+    name: Add Version Tag
+    runs-on: ubuntu-latest
+    needs: [ public-artifacts-releases ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Environment Variables
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Add Version Tag
+        uses: anothrNick/github-tag-action@1.39.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: false
+          CUSTOM_TAG: ${{ env.SHORT_VERSION }}
+          RELEASE_BRANCHES: main
+
+  automation-tests:
+    name: Running Automation Tests
+    needs : [ publish-library ]
+    runs-on: [self-hosted, automation-runner]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run Automation Testing
+        uses: joshlk/jenkins-githubaction@master
+        with:
+          url: https://jenkins-devops.customers.biocatch.com/
+          job_name: "automation-js-sdk"
+          username: ${{ secrets.NEW_JENKINS_USER }}
+          api_token: ${{ secrets.NEW_JENKINS_TOKEN }}
+          timeout: "90000"
+          parameters: |
+            {
+              "ENVIRONMENT": "application",
+              "CID": "application",
+              "CLUSTER": "dev-weu-aks-qaaas",
+              "SDK_VERSION": "${{ env.SHORT_VERSION }}/${{ env.BUILD_NUMBER }}",
+              "RELEASE_VERSION": "${{ env.SHORT_VERSION }}.${{ env.BUILD_NUMBER }}"
+            }
+
+  create-new-github-release:
+    needs: [get-short-version, add-version-tag]
+    if: contains('refs/heads/main', github.ref)
+    uses: biocatchltd/apps-shared-workflows/.github/workflows/github-release-workflow.yml@main
+    secrets: inherit
+    with:
+      SHORT_VERSION: ${{needs.get-short-version.outputs.SHORT_VERSION}}
+      REPO: https://github.com/${{ github.repository }}
+  create-new-jira-release:
+    needs: [get-short-version, add-version-tag]
+    if: contains('refs/heads/main', github.ref)
+    uses: biocatchltd/apps-shared-workflows/.github/workflows/jira-release-workflow.yml@main
+    secrets: inherit
+    with:
+      JIRA_RELEASE_NAME: "JS"
+      SHORT_VERSION: ${{needs.get-short-version.outputs.SHORT_VERSION}}

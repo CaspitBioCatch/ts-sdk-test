@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Master Slave test page</title>
+    <meta name='cdConfLocation' content='https://clientwup-dev.bc2.customers.biocatch.com/client/v3/web/wup?cid=OlbBioCatchDev'>
+    <meta name='my_csid' content='master_slave_test'>
+
+    <script type="text/javascript" src="customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="customerJs/slothDebug_DevVersion.js"></script>
+
+    <script type="text/javascript">
+        function onWindowMessage(e) {
+            if (e.data && e.data.data ) {
+                if (e.data.data.eventName != 'mouse_events'){
+                    console.log('FROM FRAME:' + JSON.stringify(e.data));
+                }
+            }
+            else {
+                console.log('FROM FRAME:' + JSON.stringify(e.data));
+            }
+        }
+
+        function shouldPrintLogs(e) {
+            if (e.target.checked) {
+                window.addEventListener('message', onWindowMessage);
+            }
+            else {
+                window.removeEventListener('message', onWindowMessage);
+            }
+
+        }
+
+        window.onload = function () {
+            var printWM = document.getElementById('printWM');
+            if (printWM.checked) {
+                shouldPrintLogs({ target: printWM });
+            }
+            printWM.addEventListener('change', shouldPrintLogs);
+
+        }
+
+        function callChangeStateApi(state) {
+            if (state !== 'run' && state !== 'pause') {
+                return;
+            }
+
+            window.postMessage({type: 'cdChangeState', toState: state}, window.location.href);
+        }
+    </script>
+
+</head>
+<body>
+
+<b>Print window messages to console:</b>
+<input id="printWM" type='checkbox' checked='true' />
+
+<br/>
+
+<iframe id='iframe1' src="https://clientdev-biocatch.github.io/slave.html" ></iframe>
+<br/>
+<br/>
+Change State:
+<button id='runApiButton' title="click to run api" onclick='callChangeStateApi("run");'>Run API</button>
+<button id='pauseApiButton' title="click to pause api" onclick='callChangeStateApi("pause");'>Pause API</button>
+<br/>
+<br/>
+</body>
+</html>

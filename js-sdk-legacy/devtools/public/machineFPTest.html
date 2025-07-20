@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Machine Finger Print test</title>
+<script type="text/javascript" src="FontDetector.js"></script>
+<script type="text/javascript" src="MachineFingerPrint.js"></script>
+<script type="text/javascript">
+window.onload = function () {
+var mfp = new MachineFingerPrint();
+mfp.fingerprintFonts(function (detectedFonts) {
+	console.log("Finished calc: " + detectedFonts.toString());
+
+});
+}
+function isUndefinedNull(x) {
+    return (typeof(x) === "undefined" || x === null || x === undefined);
+}
+
+
+</script>
+</head>
+<body>
+<h1>
+Open the DevTools (F12) and send me the message in the console. Looks something like: fontCalc: XXXms.
+Refresh the page and send me the result in the second time.
+
+Thanks
+</h1>
+<div id="logDisplay"></div>
+</body>
+</html>

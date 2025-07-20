@@ -1,0 +1,23 @@
+<html>
+	<body>
+		<button onClick="triggerMessage('Trigger Message from OUTER button to OUTER listener')">Trigger Message from OUTER button to OUTER listener</button>
+		<button onClick="triggerMessageToInner('Trigger Message from OUTER button to INNER listener')">Trigger Message from OUTER button to INNER listener</button>
+
+		<script type='text/javascript'>
+			window.addEventListener('message', function (e) {
+				msg = e.data;
+				console.log("OUTER LISTENER- parameters: " + msg.mess);
+			});
+			
+			function triggerMessage(passedmessage){
+				window.postMessage({mess:passedmessage},window.location.href);
+			}
+			function triggerMessageToInner(passedmessage){
+				document.getElementById("davesiframe").contentWindow.postMessage({mess:passedmessage}, window.location.href);
+			}
+		</script>
+		
+		<iframe id="davesiframe" src="postmessage_iframe.html"></iframe>
+	
+	</body>
+</html>

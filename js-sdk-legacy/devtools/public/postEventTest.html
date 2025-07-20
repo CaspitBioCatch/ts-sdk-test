@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MDN Example - Embedded worker</title>
+<script type="text/javascript">
+"use strict";
+
+  window.onload = function () {
+    var btn = document.getElementById('btn');
+    btn.onclick = function () {
+      setTimeout(function () {
+        console.log("posting");
+
+        window.postMessage({ type:'ContextChange', activityType: 'Transfer', activityName: 'Wire_Transfer' }, window.location.href);
+
+        console.log("chase code runs...");
+      }, 5000); 
+      
+      
+    }
+
+    window.addEventListener('message', function (e) {
+      console.log("BC handle msg");
+	  console.log(e.origin);
+	  let msg = e.data;
+	  console.log("parameters: " + msg.type + "; " + msg.activityType + "; " + msg.activityName);
+    });
+	
+  
+  }
+</script>
+</head>
+<body>
+<button id='btn'></button>
+<div id="logDisplay"></div></body>
+</html>

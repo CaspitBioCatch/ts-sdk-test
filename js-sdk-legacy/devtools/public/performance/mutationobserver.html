@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
+    <meta name='bcscriptlocation' content='https://localhost:8000/customerJs/'/>
+    <meta name='bcslothlocation' content='bcqa.customers.biocatch.com'/>
+    <meta name='bcsid' content='devTeamTestSid'></meta>
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid'></meta>
+    <meta name='bcacid' content='devTeamTestAccountId'></meta>
+    <!-- 2.0 metatags -->
+    <!--<meta name='cdConfLocation' content='/customerJs/testCustomerConfig.js'></meta>-->
+    <meta name='cdConfLocation'
+          content='https://wup-client.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=client'/>
+    <meta name='cdLogAddress'
+          content='https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs/>
+    <meta name='my_csid' content='bob-csid'/>
+
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="../materialize/css/materialize.css" media="screen,projection"/>
+
+    <script type="text/javascript" src="../../customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="../../customerJs/slothDebug_DevVersion.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 16px;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        h1 {
+            color: #323330;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+
+        }
+
+        .drop-targets {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+            margin: 20px 0;
+        }
+
+        .box {
+            height: 300px;
+            width: 300px;
+            border: solid 3px #ccc;
+            margin: 10px;
+            position: relative;
+
+            /* align items in the box */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+
+        }
+
+
+        .drag-over {
+            border: dashed 3px red;
+        }
+
+        .item {
+            height: 75px;
+            width: 75px;
+            background-color: #F0DB4F;
+            position: absolute;
+        }
+
+        .hide {
+           /* display: none;*/
+        }
+    </style>
+    <script>
+
+        let observer = {};
+
+        function activateMutation(targetNode = window.document) {
+            const config = { attributes: true, childList: true, subtree: true };
+
+            const observerCallback = (mutationList, observer) => {
+                for (const mutation of mutationList) {
+                    console.log(mutation);
+                }
+            }
+
+            observer = new MutationObserver(observerCallback);
+            observer.observe(targetNode, config);
+        }
+
+        function deactivateMutation() {
+            observer.disconnect();
+        }
+
+        window.onload = function() {
+            /* draggable element */
+            const item = document.querySelector('.item');
+
+            item.addEventListener('dragstart', dragStart);
+
+            function dragStart(e) {
+                e.dataTransfer.setData('text/plain', e.target.id);
+                setTimeout(() => {
+                    //e.target.classList.add('hide');
+                }, 0);
+            }
+
+
+            /* drop targets */
+            const boxes = document.querySelectorAll('.box');
+
+            boxes.forEach(box => {
+                box.addEventListener('drag', drag);
+                box.addEventListener('dragenter', dragEnter)
+                box.addEventListener('dragover', dragOver);
+                box.addEventListener('dragleave', dragLeave);
+                box.addEventListener('drop', drop);
+            });
+
+            function drag(e) {
+                e.preventDefault();
+                //console.log("e.clientY", e.clientY);
+                document.getElementById("item").style.top = e.clientY + "px";
+                document.getElementById("item").style.left = e.clientX + "px";
+
+                // add it to the drop target
+            }
+
+
+            function dragEnter(e) {
+                e.preventDefault();
+                e.target.classList.add('drag-over');
+            }
+
+            function dragOver(e) {
+                e.preventDefault();
+
+                e.target.classList.add('drag-over');
+            }
+
+            function dragLeave(e) {
+                e.target.classList.remove('drag-over');
+            }
+
+            function drop(e) {
+                e.target.classList.remove('drag-over');
+                console.log("e.target",e.target)
+
+                // get the draggable element
+                const id = e.dataTransfer.getData('text/plain');
+                const draggable = document.getElementById(id);
+
+                // add it to the drop target
+                e.target.appendChild(draggable);
+
+                // display the draggable element
+                //draggable.classList.remove('hide');
+            }
+        }
+    </script>
+    <script src="../../../../../Downloads/slave2.22.0.794.72a6685_fix.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>Mutation Observer Test With Draggable Elements</h1>
+    <div class="row">
+        <a class="waves-effect waves-light btn" onclick="activateMutation()">Activate Mutation Observer</a>
+        <a class="waves-effect waves-light btn" onclick="deactivateMutation()">Deactivate Mutation Observer</a>
+    </div>
+    <div class="drop-targets">
+        <div class="box">
+            <div class="item" id="item" draggable="true">
+            </div>
+        </div>
+        <div class="box"></div>
+        <div class="box"></div>
+    </div>
+    <p>
+        Thanks to https://www.javascripttutorial.net/web-apis/javascript-drag-and-drop/
+    </p>
+</div>
+</body>
+</html>

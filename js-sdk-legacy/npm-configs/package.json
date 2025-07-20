@@ -1,0 +1,15 @@
+{
+  "name": "@biocatch/js-sdk",
+  "version": "0.0.10",
+  "main": "./artifact.npm.js",
+  "files": [
+    "./artifact.npm.js"
+  ],
+  "keywords": [],
+  "author": "BioCatch Ltd.",
+  "license": "ISC",
+  "description": "BioCatch JavaScript SDK",
+  "dependencies": {
+    "crypto-js": "4.2.0"
+  }
+}

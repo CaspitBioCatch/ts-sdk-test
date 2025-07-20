@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<head>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+
+    <meta name='bcscriptlocation' content='https://localhost:8000/customerJs/'/>
+    <meta name='bcslothlocation' content='bcqa.customers.biocatch.com'/>
+    <meta name='bcsid' content='devTeamTestSid'></meta>
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid'></meta>
+    <meta name='bcacid' content='devTeamTestAccountId'></meta>
+    <!-- 2.0 metatags -->
+    <!--<meta name='cdConfLocation' content='/customerJs/testCustomerConfig.js'></meta>-->
+    <meta name='cdConfLocation'
+          content='https://wup-client.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=client'/>
+    <meta name='cdLogAddress'
+          content='https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs'/>
+    <meta name='my_csid' content='bob-csid'/>
+
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="../materialize/css/materialize.css" media="screen,projection"/>
+
+    <script type="text/javascript" src="../../customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="../../customerJs/slothDebug_DevVersion.js"></script>
+
+    <style>
+
+    </style>
+
+</head>
+<body>
+
+<div id="root"></div>
+
+<script>
+    // Generate Custom Elements
+
+    function generateCustomElement(tagName) {
+        window.customElements.define(tagName, class extends HTMLElement {
+            constructor() {
+               super();
+               this._shadowRoot = this.attachShadow({ mode: 'open' });
+               this._shadowRoot.innerHTML = this.setupHTML();
+               this._tagName = tagName;
+            }
+
+            connectedCallback() {
+               this._shadowRoot.querySelector('div p').innerHTML = `${this._tagName}s content`;
+            }
+
+            setupHTML() {
+               return `
+                <div>
+                    <p></p>
+                    <slot></slot>
+                    <div class="row">
+                        <div class="input-field col s6">
+                            <input placeholder="First Name Placeholder" type="text" class="validate">
+                            <label for="wc_first_name" class="active">First Name</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button class="btn waves-effect waves-light" type="button" name="action">Submit
+                            <i class="material-icons right">send</i>
+                        </button>
+                    </div>
+                </div>
+               `;
+            }
+        });
+    }
+
+    function massiveCustomElements() {
+        const customElementsNames = [
+            'custom', 'element', 'lives', 'long', 'ana', 'zak', 'lovely', 'profile', 'shir', 'shira', 'tal'
+        ]
+
+        for (let i = customElementsNames.length - 1; i >= 0; i-- ) {
+            const nextTagName = `my-${customElementsNames[i]}`;
+            generateCustomElement(nextTagName);
+        }
+        let customElements = [];
+        for (let c = 70; c > 0; c-- ) {
+            customElements = [];
+            for (let i = customElementsNames.length - 1; i >= 0; i-- ) {
+                const nextTagName = `my-${customElementsNames[i]}`;
+                customElements.push(document.createElement(nextTagName));
+            }
+            const nextLevel = Math.floor(Math.random() * customElements.length-1);
+
+            let nextElementLevel = document.getElementById('root').appendChild(document.createElement("div"));
+            for (let l = 0; l <= nextLevel; l++ ) {
+                nextElementLevel = nextElementLevel.appendChild(customElements[l]);
+            }
+        }
+    }
+
+    window.document.addEventListener('DOMContentLoaded', function () {
+        window.setTimeout(() => {
+            massiveCustomElements();
+        },3000);
+    });
+</script>
+</body>
+</html>

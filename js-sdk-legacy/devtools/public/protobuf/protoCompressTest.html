@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>Wup Encoder Decoder</title>
+<script type="text/javascript" src="ByteBufferAB.js"></script>
+<script type="text/javascript" src="ProtoBuf.js"></script>
+<script type="text/javascript" src="pako.js"></script>
+<script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js"></script>
+<script type="text/javascript" src="protoCompressTest.js"></script>
+
+</head>
+<body>
+<h1>
+Encode Wup message using protobuf (JS pre 2.0)/ msgpack (JS >= 2.0)
+</h1>
+<button id='compressBtn' onclick='compress();'>Encode</button>
+<select id="compressBy">
+    <option value="protobuf">protobuf</option>
+    <option value="msgpack" selected>msgpack</option>
+    <option value="onlyzip">Only gzip</option>
+</select>
+<h6 id="compressRatio">
+
+</h6>
+<br/>
+<textarea rows="25" cols="100" id="compressTA"></textarea>
+<textarea rows="25" cols="100" id="compressResultTA"></textarea>
+
+<br/>
+<h1>
+Decode Wup message encoded by protobuf (JS pre 2.0) / msgpack (JS >= 2.0)
+</h1>
+<table>
+    <tr>
+        <td>
+            <button id='uncompressBtn' onclick="uncompress();">Decode</button>
+            <br/>
+            <textarea rows="25" cols="100" id="uncompressTA" placeholder='2jd9cH9fsft
+
+OR
+
+"2jd9cH9fsft"
+        '></textarea>
+        </td>
+        <td>
+            <button id='prettifyBtn' onclick="prettifyTextAreaById('uncompressResultTA');">Prettify JSON</button>
+            <br/>
+            <textarea rows="25" cols="100" id="uncompressResultTA"></textarea>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

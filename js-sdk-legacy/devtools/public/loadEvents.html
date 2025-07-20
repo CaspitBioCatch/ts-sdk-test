@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>MDN Example - Embedded worker</title>
+<script type="text/javascript">
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+    console.log("DOMContentLoaded");
+  });
+  
+   document.addEventListener("load", function(event) {
+    console.log("load");
+  });
+  
+  window.onload = function() { console.log("window.onload"); };
+  
+  window.addEventListener("beforeunload", function (e) { console.log("window.beforeunload"); });
+  
+   window.addEventListener('unload', function(event) {
+        console.log('window.unload');
+   });
+   
+   document.onreadystatechange = function () { console.log("document.onreadystatechange: readyState = " + document.readyState); }
+</script>
+</head>
+<body><div id="logDisplay"></div></body>
+</html>

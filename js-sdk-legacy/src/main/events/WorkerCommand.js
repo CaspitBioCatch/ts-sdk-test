@@ -1,0 +1,17 @@
+export const WorkerCommand = {
+    requestConfigurationsCommand: 'requestConfigurationsCommand',
+    startNewSessionCommand: 'startNewSessionCommand',
+    resumeSessionCommand: 'resumeSessionCommand',
+    changeContextCommand: 'changeContextCommand',
+    updateCsidCommand: 'updateCsidCommand',
+    updatePsidCommand: 'updatePsidCommand',
+    updateLogUrlCommand: 'updateLogUrl',
+    sendDataCommand: 'sendDataCommand',
+    sendLogCommand: 'sendLogCommand',
+    updateBrandCommand: 'updateBrandCommand',
+    stateUpdateFromStorage: 'stateUpdateFromStorage',
+    setAgentTypeCommand: 'setAgentTypeCommand',
+    updateAgentIdCommand: 'updateAgentIdCommand',
+    enableWupMessagesHashingCommand: 'enableWupMessagesHashingCommand',
+    updateSDKStateCommand: 'updateSDKState',
+};

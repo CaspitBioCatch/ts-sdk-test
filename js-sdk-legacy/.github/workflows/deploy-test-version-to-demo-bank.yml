@@ -1,0 +1,145 @@
+name: Deploy Test Version to Demo Bank
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdk_interface:
+        description: "SDK Interface to use"
+        required: true
+        type: choice
+        options:
+          - cdApi
+          - bcClient
+        default: "cdApi"
+      environment:
+        description: "Environment to deploy to"
+        required: true
+        type: choice
+        options:
+          - application
+          - staging
+        default: "application"
+      custom_environment:
+        description: "Custom Environment to deploy to (if applicable)"
+        required: false
+        type: string
+        default: ""
+      cluster:
+        description: "Cluster to deploy to"
+        required: true
+        type: choice
+        options:
+          - dev-weu-aks-qaaas
+          - prod-weu-aks-qaaas
+        default: "dev-weu-aks-qaaas"
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+  S3_AUTOMATION_PATH: s3://rnd-bcdn/clientDev/js/automation
+  NETWORK_TIMEOUT: 100000
+  NODE_JS_VERSION: 20
+
+jobs:
+  build:
+    name: Build
+    runs-on: [client-runner]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Install Dependencies
+        run: yarn --network-timeout $NETWORK_TIMEOUT
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run ESLINT
+        run: yarn run eslint
+      - name: Build Release
+        run: yarn run build
+      - name: Build Debug
+        run: yarn run builddev
+      - name: Build Obfuscated
+        run: yarn run buildObfuscate
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/**
+            src/main/samples/DefaultCustomerApi.js
+            src/main/samples/HeartBeatSample.js
+
+  publish:
+    name: Publish
+    needs: [build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Publish to Automation Path
+        run: |
+          aws s3 sync dist \
+            "$S3_AUTOMATION_PATH/${{ github.ref_name }}/$BUILD_NUMBER" \
+            --exclude "*" --include "*.js" --include "*.js.map" --include "debug"
+
+          aws s3 cp src/main/samples/DefaultCustomerApi.js \
+            "$S3_AUTOMATION_PATH/${{ github.ref_name }}/$BUILD_NUMBER/DefaultCustomerApi.js"
+
+          aws s3 cp src/main/samples/HeartBeatSample.js \
+            "$S3_AUTOMATION_PATH/${{ github.ref_name }}/$BUILD_NUMBER/HeartBeatSample.js"
+
+          aws s3 cp dist/crossdomain.html \
+            "$S3_AUTOMATION_PATH/${{ github.ref_name }}/$BUILD_NUMBER/crossdomain.html"
+
+  deploy-demo-bank:
+    name: Deploy to Demo Bank
+    needs: [publish]
+    runs-on: [self-hosted, automation-runner]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Run Automation Testing
+        uses: joshlk/jenkins-githubaction@master
+        with:
+          url: https://jenkins-devops.customers.biocatch.com/
+          job_name: "automation-demo-bank"
+          username: ${{ secrets.NEW_JENKINS_USER }}
+          api_token: ${{ secrets.NEW_JENKINS_TOKEN }}
+          wait: "true"
+          timeout: "90000"
+          parameters: |
+            {
+              "ENVIRONMENT": "${{ inputs.custom_environment != '' && inputs.custom_environment || inputs.environment }}",
+              "CID": "${{ inputs.custom_environment != '' && inputs.custom_environment || inputs.environment }}",
+              "CLUSTER": "${{ inputs.cluster }}",
+              "SDK_VERSION": "${{ github.ref_name }}/${{ github.run_number }}",
+              "SDK_INTERFACE": "${{ inputs.sdk_interface }}",
+              "DEV_MODE": true
+            }

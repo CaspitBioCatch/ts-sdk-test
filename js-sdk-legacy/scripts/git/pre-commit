@@ -1,0 +1,74 @@
+#!/bin/sh
+
+#    ____  _        ____      _       _
+#   | __ )(_) ___  / ___|__ _| |_ ___| |__
+#   |  _ \| |/ _ \| |   / _` | __/ __| '_ \
+#   | |_) | | (_) | |__| (_| | || (__| | | |
+#   |____/|_|\___/ \____\__,_|\__\___|_| |_|
+#
+
+# Created by tommy @ 31/08/2018
+# This script runs before every commit to git
+# It's looking for tests files which are defined with ".only" statement
+# which were probably added for development purposes only, and not for shippable/production
+
+# Look only for files ending with "Spec.js"
+FILES_PATTERN='Spec\.js$'
+
+# Look for "describe.only(" and "it.only(" content with regex
+#TEST_ONLY_PATTERN='(describe|it)\.only\('
+
+TEST_ONLY_PATTERN='^(?:\s+)?((?:describe|it)\.only\()'
+
+# Redirect output to stderr.
+exec 1>&2
+
+# Check changed files for our pattern
+FILE_LIST=$(git diff --name-only --cached | grep -E $FILES_PATTERN | xargs grep -E --with-filename -n $TEST_ONLY_PATTERN)
+
+# check if FILES is non-zero length
+# which means that the regex pattern has been identified in the test files
+if [ -n "$FILE_LIST" ]; then
+
+  echo ""
+  echo "=========== \"describe.only\" OR \"it.only\" occurances found ==========="
+
+  # Check if a PROMPT could be presented to the user (in mac's terminal for exmaple)
+  # asking whether to commit or not (due to "only" tests detected)
+  # Notice: In some IDEs and SourceTree the commit will just be aborted without asking the user whether to continue or not
+  if (exec < /dev/tty) > /dev/null 2>&1; then
+
+    exec < /dev/tty # Capture input
+
+    # Bash color codes
+    RED="\033[31m"
+    GREEN="\033[32m"
+    END_COLOR="\033[0m"
+
+    echo "${RED}${FILE_LIST}${END_COLOR}"
+    echo ""
+
+    while true; do
+        read -p "Possible \"only\" tests were found. Commit files anyway (y/n)? [default: no] " yn
+        if [ "$yn" = "" ]; then
+            yn='N'
+        fi
+        case $yn in
+            [Yy] ) echo ""; echo "${GREEN}Commited successfully.${END_COLOR}"; echo ""; exit 0;;
+            [Nn] ) echo ""; echo "${RED}Commit has been aborted.${END_COLOR}"; echo ""; exit 1;;
+            * ) echo ""; echo "${RED}Please answer y or n for yes or no.${END_COLOR}"; echo "";;
+        esac
+    done
+    exec <&- # Release input
+
+  else # if regex identified and can't display user prompt - just notify the user and abort the commit
+    echo "${FILE_LIST}"
+    echo ""
+    echo "Commit has been aborted"
+    echo "Please remove the \"only\" statements from the above files, and commit again"
+    exit 1;
+  fi
+
+fi
+
+exit 0;

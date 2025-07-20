@@ -1,0 +1,3610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://rawgit.com https://cdn.jsdelivr.net; worker-src  https://localhost:9000/customerJs/worker_DevVersion.js blob:;">
+
+    <!-- 1.4 metatags -->
+    <meta name='bcscriptlocation' content='https://localhost:8000/customerJs/'/>
+    <meta name='bcslothlocation' content='bcqa.customers.biocatch.com'/>
+    <meta name='bcsid' content='devTeamTest' />
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid' />
+    <meta name='bcacid' content='devTeamTestAccountId' />
+    <meta name='cdConfLocation'
+          content='https://wup-dtrackers.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=dtrackers'/>
+    <meta name='cdLogAddress'
+          content='https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs'/>
+    <meta name="cdWorkerUrl" content="customerJs/worker_DevVersion.js" />
+    <meta name='my_csid' content='bob-csid'/>
+    <script type="text/javascript" src="customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="customerJs/slothDebug_DevVersion.js" ></script>
+
+     <script type="text/javascript">
+        function compress() {
+            var a = document.getElementsByName('bcsid')[0].getAttribute('content');
+        }
+
+        function callFlushApi() {
+            cdApi.client.flush();
+        }
+
+        function setCoordinatesMasking(isEnable) {
+            cdApi.client.setCoordinatesMasking(isEnable)
+        }
+
+        function callResetSessionApi() {
+            window.postMessage({type: 'ResetSession', resetReason: 'customerApi'}, window.location.href);
+        }
+
+        function callSetPsidApi() {
+            var psid = document.getElementById('psidValue').value;
+            window.postMessage({type: 'cdSetPsid', psid: psid}, window.location.href);
+        }
+
+        function callContextApi() {
+            var ctxName = document.getElementById('contextName').value;
+            window.postMessage({type: 'ContextChange', context: ctxName}, window.location.href);
+        }
+
+        function callChangeStateApi() {
+            var stateName = document.getElementById('stateName').value;
+            if (stateName !== 'run' && stateName !== 'pause') {
+                return;
+            }
+
+            window.postMessage({type: 'cdChangeState', toState: stateName}, window.location.href);
+        }
+
+        function getConnectionType() {
+            document.getElementById('connectionType').value = window.navigator.connection ? window.navigator.connection.type : 'not supported';
+        }
+
+        function calcTime() {
+            var perfData = window.performance.timing;
+            var pageLoadTime = perfData.loadEventEnd - perfData.navigationStart;
+            document.getElementById('calcResult').value = pageLoadTime;
+        }
+
+        function addListener(listener, eventName, eventListener) {
+            if (listener.addEventListener) {
+                listener.addEventListener(eventName, eventListener);
+            }
+            else {
+                listener.attachEvent(eventName, eventListener);
+            }
+        }
+    </script>
+
+    <title>Web Components Demo with Nested Shadow DOM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .results {
+            white-space: pre-wrap;
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow: auto;
+        }
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Web Components Scanner Demo</h1>
+        <p>This page demonstrates nested web components with shadow DOM up to a depth of 4 levels.</p>
+        
+        <div class="card">
+            <h2>Actions</h2>
+            <button id="scanBtn">Scan Web Components</button>
+            <button id="clearBtn">Clear Results</button>
+            <button id="downloadBtn" disabled>Download Results</button>
+        </div>
+        
+        <div class="card">
+            <h2>Scan Results</h2>
+            <pre id="results" class="results">Results will appear here after scanning...</pre>
+        </div>
+        
+        <div class="card">
+            <h2>Component Demo - Nested Components</h2>
+            <p>The components below demonstrate nested web components with shadow DOM up to 4 levels deep.</p>
+            <level-one-component>
+                <div slot="header">This is slotted content in the level-one-component</div>
+            </level-one-component>
+        </div>
+
+        <div class="card">
+            <h2>Form Components</h2>
+            <p>Interactive form components with various input types and buttons.</p>
+            <user-form-component></user-form-component>
+            <login-form-component></login-form-component>
+            <search-box-component></search-box-component>
+            <rating-component></rating-component>
+        </div>
+
+        <div class="card">
+            <h2>Navigation Components</h2>
+            <p>Navigation and menu components for website structure.</p>
+            <nav-menu-component></nav-menu-component>
+            <breadcrumb-component></breadcrumb-component>
+            <tab-panel-component></tab-panel-component>
+        </div>
+
+        <div class="card">
+            <h2>Layout Components</h2>
+            <p>Layout and container components for page structure.</p>
+            <modal-component></modal-component>
+            <sidebar-component></sidebar-component>
+            <accordion-component></accordion-component>
+        </div>
+
+        <div class="card">
+            <h2>UI Controls</h2>
+            <p>Interactive UI controls and widgets.</p>
+            <dropdown-component></dropdown-component>
+            <slider-component></slider-component>
+            <toggle-switch-component></toggle-switch-component>
+            <progress-bar-component></progress-bar-component>
+        </div>
+
+        <div class="card">
+            <h2>Data Display Components</h2>
+            <p>Components for displaying and managing data.</p>
+            <data-table-component></data-table-component>
+            <chart-component></chart-component>
+            <notification-component></notification-component>
+        </div>
+
+        <div class="card">
+            <h2>Media Components</h2>
+            <p>Components for media and content display.</p>
+            <image-gallery-component></image-gallery-component>
+            <video-player-component></video-player-component>
+            <audio-player-component></audio-player-component>
+        </div>
+    </div>
+
+    <!-- Web Components Scanner -->
+    <script src="webComponentsScanner.js"></script>
+    
+    <!-- Component Definitions -->
+    <script>
+        // Level 4 Component (deepest level)
+        class LevelFourComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px solid purple;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: lavender;
+                        }
+                        .level-four-content {
+                            font-weight: bold;
+                        }
+                    </style>
+                    <div>
+                        <h4>Level 4 Component (Deepest)</h4>
+                        <p class="level-four-content">This is the deepest level component</p>
+                        <slot></slot>
+                    </div>
+                `;
+            }
+        }
+
+        // Level 3 Component with both open and closed shadow DOM children
+        class LevelThreeComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px solid blue;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: aliceblue;
+                        }
+                    </style>
+                    <div>
+                        <h3>Level 3 Component</h3>
+                        <p>This component has a child level-4 component</p>
+                        <level-four-component></level-four-component>
+                        <level-four-closed-component></level-four-closed-component>
+                        <slot></slot>
+                    </div>
+                `;
+            }
+        }
+
+        // Level 3 Component with closed shadow DOM
+        class LevelThreeClosedComponent extends HTMLElement {
+            constructor() {
+                super();
+                const shadowRoot = this.attachShadow({ mode: 'closed' });
+                shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px dashed blue;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: lightcyan;
+                        }
+                    </style>
+                    <div>
+                        <h3>Level 3 Closed Component</h3>
+                        <p>This component has a closed shadow DOM</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Level 4 Component with closed shadow DOM
+        class LevelFourClosedComponent extends HTMLElement {
+            constructor() {
+                super();
+                const shadowRoot = this.attachShadow({ mode: 'closed' });
+                shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px dashed purple;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: thistle;
+                        }
+                    </style>
+                    <div>
+                        <h4>Level 4 Closed Component</h4>
+                        <p>This component has a closed shadow DOM</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Level 2 Component
+        class LevelTwoComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px solid green;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: honeydew;
+                        }
+                    </style>
+                    <div>
+                        <h2>Level 2 Component</h2>
+                        <p>This component has level-3 child components</p>
+                        <level-three-component></level-three-component>
+                        <level-three-closed-component></level-three-closed-component>
+                        <slot></slot>
+                    </div>
+                `;
+            }
+        }
+
+        // Level 1 Component (root level)
+        class LevelOneComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 3px solid red;
+                            padding: 10px;
+                            margin: 10px;
+                            background-color: mistyrose;
+                        }
+                    </style>
+                    <div>
+                        <h1>Level 1 Component</h1>
+                        <p>Root level component with nested shadow DOM</p>
+                        <slot name="header">Default header content</slot>
+                        <level-two-component></level-two-component>
+                        <slot></slot>
+                    </div>
+                `;
+            }
+        }
+
+        // Define all custom elements
+        customElements.define('level-one-component', LevelOneComponent);
+        customElements.define('level-two-component', LevelTwoComponent);
+        customElements.define('level-three-component', LevelThreeComponent);
+        customElements.define('level-three-closed-component', LevelThreeClosedComponent);
+        customElements.define('level-four-component', LevelFourComponent);
+        customElements.define('level-four-closed-component', LevelFourClosedComponent);
+
+        // Form Components
+        class UserFormComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #4CAF50;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        }
+                        .form-group {
+                            margin-bottom: 15px;
+                        }
+                        label {
+                            display: block;
+                            margin-bottom: 5px;
+                            font-weight: bold;
+                        }
+                        input, select, textarea {
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-sizing: border-box;
+                        }
+                        button {
+                            background-color: #4CAF50;
+                            color: white;
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                        button:hover { background-color: #45a049; }
+                        .status { margin-top: 10px; padding: 10px; border-radius: 4px; }
+                        .success { background-color: #d4edda; color: #155724; }
+                        .error { background-color: #f8d7da; color: #721c24; }
+                    </style>
+                    <div>
+                        <h3>User Registration Form</h3>
+                        <form id="userForm">
+                            <div class="form-group">
+                                <label for="firstName">First Name:</label>
+                                <input type="text" id="firstName" name="firstName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="lastName">Last Name:</label>
+                                <input type="text" id="lastName" name="lastName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email:</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="age">Age:</label>
+                                <input type="number" id="age" name="age" min="1" max="120">
+                            </div>
+                            <div class="form-group">
+                                <label for="bio">Bio:</label>
+                                <textarea id="bio" name="bio" rows="3"></textarea>
+                            </div>
+                            <button type="submit">Register</button>
+                            <button type="reset">Clear</button>
+                        </form>
+                        <div id="status" class="status" style="display: none;"></div>
+                    </div>
+                `;
+                this.setupFormHandling();
+            }
+
+            setupFormHandling() {
+                const form = this.shadowRoot.querySelector('#userForm');
+                const status = this.shadowRoot.querySelector('#status');
+                
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(form);
+                    const data = Object.fromEntries(formData.entries());
+                    
+                    status.textContent = `Registration successful for ${data.firstName} ${data.lastName}!`;
+                    status.className = 'status success';
+                    status.style.display = 'block';
+                    
+                    setTimeout(() => {
+                        status.style.display = 'none';
+                    }, 3000);
+                });
+
+                form.addEventListener('reset', () => {
+                    status.style.display = 'none';
+                });
+            }
+        }
+
+        class LoginFormComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #2196F3;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                        }
+                        .form-group {
+                            margin-bottom: 15px;
+                        }
+                        label {
+                            display: block;
+                            margin-bottom: 5px;
+                            font-weight: bold;
+                        }
+                        input {
+                            width: 100%;
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-sizing: border-box;
+                        }
+                        button {
+                            background-color: #2196F3;
+                            color: white;
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                        button:hover { background-color: #1976D2; }
+                        .checkbox-group {
+                            display: flex;
+                            align-items: center;
+                            margin-bottom: 15px;
+                        }
+                        .checkbox-group input {
+                            width: auto;
+                            margin-right: 8px;
+                        }
+                    </style>
+                    <div>
+                        <h3>Login Form</h3>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="username">Username:</label>
+                                <input type="text" id="username" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="remember" name="remember">
+                                <label for="remember">Remember me</label>
+                            </div>
+                            <button type="submit">Login</button>
+                            <button type="button" id="forgotBtn">Forgot Password</button>
+                        </form>
+                    </div>
+                `;
+                this.setupLoginHandling();
+            }
+
+            setupLoginHandling() {
+                const form = this.shadowRoot.querySelector('#loginForm');
+                const forgotBtn = this.shadowRoot.querySelector('#forgotBtn');
+                
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    alert('Login attempted (demo only)');
+                });
+
+                forgotBtn.addEventListener('click', () => {
+                    alert('Password reset link sent (demo only)');
+                });
+            }
+        }
+
+        class SearchBoxComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #FF9800;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+                        }
+                        .search-container {
+                            display: flex;
+                            gap: 10px;
+                            align-items: center;
+                        }
+                        input[type="search"] {
+                            flex: 1;
+                            padding: 8px 12px;
+                            border: 1px solid #ddd;
+                            border-radius: 20px;
+                            font-size: 14px;
+                        }
+                        button {
+                            background-color: #FF9800;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 20px;
+                            cursor: pointer;
+                        }
+                        button:hover { background-color: #F57C00; }
+                        .results {
+                            margin-top: 10px;
+                            padding: 10px;
+                            background-color: rgba(255, 255, 255, 0.7);
+                            border-radius: 4px;
+                            display: none;
+                        }
+                    </style>
+                    <div>
+                        <h3>Search Component</h3>
+                        <div class="search-container">
+                            <input type="search" id="searchInput" placeholder="Search anything...">
+                            <button id="searchBtn">Search</button>
+                            <button id="clearBtn">Clear</button>
+                        </div>
+                        <div id="results" class="results"></div>
+                    </div>
+                `;
+                this.setupSearchHandling();
+            }
+
+            setupSearchHandling() {
+                const searchInput = this.shadowRoot.querySelector('#searchInput');
+                const searchBtn = this.shadowRoot.querySelector('#searchBtn');
+                const clearBtn = this.shadowRoot.querySelector('#clearBtn');
+                const results = this.shadowRoot.querySelector('#results');
+                
+                const performSearch = () => {
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        results.innerHTML = `<strong>Search Results for "${query}":</strong><br>
+                            • Result 1: Sample item matching your query<br>
+                            • Result 2: Another relevant result<br>
+                            • Result 3: Third matching item`;
+                        results.style.display = 'block';
+                    } else {
+                        results.style.display = 'none';
+                    }
+                };
+
+                searchBtn.addEventListener('click', performSearch);
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                });
+                
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    results.style.display = 'none';
+                });
+            }
+        }
+
+        class RatingComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.rating = 0;
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #FFC107;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #fff9c4 0%, #ffeb3b 100%);
+                        }
+                        .stars {
+                            display: flex;
+                            gap: 5px;
+                            margin: 10px 0;
+                        }
+                        .star {
+                            font-size: 24px;
+                            color: #ddd;
+                            cursor: pointer;
+                            transition: color 0.2s;
+                        }
+                        .star.active, .star:hover {
+                            color: #FFC107;
+                        }
+                        button {
+                            background-color: #FFC107;
+                            color: black;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-top: 10px;
+                        }
+                        button:hover { background-color: #FFB300; }
+                        .rating-display {
+                            margin-top: 10px;
+                            font-weight: bold;
+                        }
+                    </style>
+                    <div>
+                        <h3>Rating Component</h3>
+                        <p>Click stars to rate:</p>
+                        <div class="stars">
+                            <span class="star" data-rating="1">★</span>
+                            <span class="star" data-rating="2">★</span>
+                            <span class="star" data-rating="3">★</span>
+                            <span class="star" data-rating="4">★</span>
+                            <span class="star" data-rating="5">★</span>
+                        </div>
+                        <button id="submitRating">Submit Rating</button>
+                        <div class="rating-display" id="ratingDisplay">Rating: 0/5</div>
+                    </div>
+                `;
+                this.setupRatingHandling();
+            }
+
+            setupRatingHandling() {
+                const stars = this.shadowRoot.querySelectorAll('.star');
+                const submitBtn = this.shadowRoot.querySelector('#submitRating');
+                const display = this.shadowRoot.querySelector('#ratingDisplay');
+                
+                stars.forEach(star => {
+                    star.addEventListener('click', () => {
+                        this.rating = parseInt(star.dataset.rating);
+                        this.updateStarDisplay();
+                        display.textContent = `Rating: ${this.rating}/5`;
+                    });
+                });
+
+                submitBtn.addEventListener('click', () => {
+                    if (this.rating > 0) {
+                        alert(`Thank you for rating us ${this.rating} stars!`);
+                    } else {
+                        alert('Please select a rating first');
+                    }
+                });
+            }
+
+            updateStarDisplay() {
+                const stars = this.shadowRoot.querySelectorAll('.star');
+                stars.forEach((star, index) => {
+                    star.classList.toggle('active', index < this.rating);
+                });
+            }
+        }
+
+        // Navigation Components
+        class NavMenuComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #9C27B0;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #e1bee7 0%, #ba68c8 100%);
+                        }
+                        .nav-menu {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 10px;
+                        }
+                        .menu-item {
+                            background-color: #9C27B0;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            text-decoration: none;
+                            display: inline-block;
+                        }
+                        .menu-item:hover, .menu-item.active {
+                            background-color: #7B1FA2;
+                        }
+                        .mobile-toggle {
+                            display: none;
+                            background-color: #9C27B0;
+                            color: white;
+                            padding: 10px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-bottom: 10px;
+                        }
+                        @media (max-width: 600px) {
+                            .mobile-toggle { display: block; }
+                            .nav-menu { 
+                                flex-direction: column;
+                                display: none;
+                            }
+                            .nav-menu.open { display: flex; }
+                        }
+                    </style>
+                    <div>
+                        <h3>Navigation Menu</h3>
+                        <button class="mobile-toggle" id="mobileToggle">☰ Menu</button>
+                        <nav class="nav-menu" id="navMenu">
+                            <button class="menu-item active" data-page="home">Home</button>
+                            <button class="menu-item" data-page="about">About</button>
+                            <button class="menu-item" data-page="services">Services</button>
+                            <button class="menu-item" data-page="portfolio">Portfolio</button>
+                            <button class="menu-item" data-page="contact">Contact</button>
+                        </nav>
+                    </div>
+                `;
+                this.setupNavHandling();
+            }
+
+            setupNavHandling() {
+                const menuItems = this.shadowRoot.querySelectorAll('.menu-item');
+                const mobileToggle = this.shadowRoot.querySelector('#mobileToggle');
+                const navMenu = this.shadowRoot.querySelector('#navMenu');
+                
+                menuItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        menuItems.forEach(mi => mi.classList.remove('active'));
+                        item.classList.add('active');
+                        console.log(`Navigated to: ${item.dataset.page}`);
+                    });
+                });
+
+                mobileToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('open');
+                });
+            }
+        }
+
+        class BreadcrumbComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #607D8B;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #cfd8dc 0%, #90a4ae 100%);
+                        }
+                        .breadcrumb {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            margin: 10px 0;
+                        }
+                        .breadcrumb-item {
+                            color: #607D8B;
+                            text-decoration: none;
+                            cursor: pointer;
+                        }
+                        .breadcrumb-item:hover {
+                            text-decoration: underline;
+                        }
+                        .breadcrumb-item.current {
+                            color: #333;
+                            font-weight: bold;
+                        }
+                        .separator {
+                            color: #999;
+                        }
+                        button {
+                            background-color: #607D8B;
+                            color: white;
+                            padding: 6px 12px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin: 5px;
+                        }
+                        button:hover { background-color: #455A64; }
+                    </style>
+                    <div>
+                        <h3>Breadcrumb Navigation</h3>
+                        <nav class="breadcrumb" id="breadcrumb">
+                            <a href="#" class="breadcrumb-item" data-path="home">Home</a>
+                            <span class="separator">></span>
+                            <a href="#" class="breadcrumb-item" data-path="products">Products</a>
+                            <span class="separator">></span>
+                            <span class="breadcrumb-item current">Current Page</span>
+                        </nav>
+                        <div>
+                            <button id="addLevel">Add Level</button>
+                            <button id="goBack">Go Back</button>
+                        </div>
+                    </div>
+                `;
+                this.setupBreadcrumbHandling();
+            }
+
+            setupBreadcrumbHandling() {
+                const breadcrumbItems = this.shadowRoot.querySelectorAll('.breadcrumb-item:not(.current)');
+                const addBtn = this.shadowRoot.querySelector('#addLevel');
+                const backBtn = this.shadowRoot.querySelector('#goBack');
+                
+                breadcrumbItems.forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        console.log(`Navigated to: ${item.dataset.path}`);
+                    });
+                });
+
+                addBtn.addEventListener('click', () => {
+                    console.log('Added new breadcrumb level');
+                });
+
+                backBtn.addEventListener('click', () => {
+                    console.log('Navigated back');
+                });
+            }
+        }
+
+        class TabPanelComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.activeTab = 0;
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #E91E63;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+                        }
+                        .tab-buttons {
+                            display: flex;
+                            gap: 2px;
+                            margin-bottom: 15px;
+                        }
+                        .tab-button {
+                            background-color: #f5f5f5;
+                            border: none;
+                            padding: 10px 20px;
+                            cursor: pointer;
+                            border-radius: 4px 4px 0 0;
+                        }
+                        .tab-button.active {
+                            background-color: #E91E63;
+                            color: white;
+                        }
+                        .tab-content {
+                            background-color: white;
+                            padding: 15px;
+                            border-radius: 4px;
+                            min-height: 100px;
+                        }
+                        .tab-panel {
+                            display: none;
+                        }
+                        .tab-panel.active {
+                            display: block;
+                        }
+                        input, button {
+                            margin: 5px;
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                        }
+                        button {
+                            background-color: #E91E63;
+                            color: white;
+                            border: none;
+                            cursor: pointer;
+                        }
+                        button:hover { background-color: #C2185B; }
+                    </style>
+                    <div>
+                        <h3>Tab Panel Component</h3>
+                        <div class="tab-buttons">
+                            <button class="tab-button active" data-tab="0">Settings</button>
+                            <button class="tab-button" data-tab="1">Profile</button>
+                            <button class="tab-button" data-tab="2">Notifications</button>
+                        </div>
+                        <div class="tab-content">
+                            <div class="tab-panel active" data-panel="0">
+                                <h4>Settings</h4>
+                                <label><input type="checkbox"> Enable notifications</label><br>
+                                <label><input type="checkbox"> Auto-save changes</label><br>
+                                <label><input type="checkbox"> Dark mode</label><br>
+                                <button>Save Settings</button>
+                            </div>
+                            <div class="tab-panel" data-panel="1">
+                                <h4>Profile</h4>
+                                <label>Display Name: <input type="text" value="John Doe"></label><br>
+                                <label>Bio: <input type="text" value="Web developer"></label><br>
+                                <button>Update Profile</button>
+                            </div>
+                            <div class="tab-panel" data-panel="2">
+                                <h4>Notifications</h4>
+                                <label><input type="radio" name="frequency" value="immediate"> Immediate</label><br>
+                                <label><input type="radio" name="frequency" value="daily"> Daily digest</label><br>
+                                <label><input type="radio" name="frequency" value="weekly"> Weekly summary</label><br>
+                                <button>Save Preferences</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupTabHandling();
+            }
+
+            setupTabHandling() {
+                const tabButtons = this.shadowRoot.querySelectorAll('.tab-button');
+                const tabPanels = this.shadowRoot.querySelectorAll('.tab-panel');
+                const saveButtons = this.shadowRoot.querySelectorAll('button:not(.tab-button)');
+                
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const tabIndex = parseInt(button.dataset.tab);
+                        this.switchTab(tabIndex);
+                    });
+                });
+
+                saveButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+            }
+
+            switchTab(index) {
+                const tabButtons = this.shadowRoot.querySelectorAll('.tab-button');
+                const tabPanels = this.shadowRoot.querySelectorAll('.tab-panel');
+                
+                tabButtons.forEach((btn, i) => {
+                    btn.classList.toggle('active', i === index);
+                });
+                
+                tabPanels.forEach((panel, i) => {
+                    panel.classList.toggle('active', i === index);
+                });
+                
+                this.activeTab = index;
+            }
+        }
+
+        // Layout Components
+        class ModalComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.isOpen = false;
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #FF5722;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #ffccbc 0%, #ff8a65 100%);
+                        }
+                        .modal-trigger {
+                            background-color: #FF5722;
+                            color: white;
+                            padding: 10px 20px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin: 5px;
+                        }
+                        .modal-trigger:hover { background-color: #E64A19; }
+                        .modal-overlay {
+                            display: none;
+                            position: fixed;
+                            top: 0;
+                            left: 0;
+                            width: 100%;
+                            height: 100%;
+                            background-color: rgba(0, 0, 0, 0.5);
+                            z-index: 1000;
+                        }
+                        .modal-overlay.open { display: flex; align-items: center; justify-content: center; }
+                        .modal-content {
+                            background: white;
+                            padding: 20px;
+                            border-radius: 8px;
+                            max-width: 500px;
+                            width: 90%;
+                            position: relative;
+                        }
+                        .modal-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 15px;
+                            border-bottom: 1px solid #ddd;
+                            padding-bottom: 10px;
+                        }
+                        .close-button {
+                            background: none;
+                            border: none;
+                            font-size: 20px;
+                            cursor: pointer;
+                            padding: 0;
+                            width: 30px;
+                            height: 30px;
+                        }
+                        .modal-body {
+                            margin-bottom: 15px;
+                        }
+                        .modal-footer {
+                            display: flex;
+                            gap: 10px;
+                            justify-content: flex-end;
+                            padding-top: 10px;
+                            border-top: 1px solid #ddd;
+                        }
+                        .modal-footer button {
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .btn-primary { background-color: #2196F3; color: white; }
+                        .btn-secondary { background-color: #6c757d; color: white; }
+                        input { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+                    </style>
+                    <div>
+                        <h3>Modal Component</h3>
+                        <button class="modal-trigger" id="openModal">Open Modal</button>
+                        <button class="modal-trigger" id="openFormModal">Open Form Modal</button>
+                        
+                        <div class="modal-overlay" id="basicModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4>Basic Modal</h4>
+                                    <button class="close-button" data-close>&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>This is a basic modal dialog. You can put any content here.</p>
+                                    <p>Click the X or Cancel to close it.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn-secondary" data-close>Cancel</button>
+                                    <button class="btn-primary" id="confirmAction">Confirm</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-overlay" id="formModal">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4>Contact Form</h4>
+                                    <button class="close-button" data-close>&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="contactForm">
+                                        <input type="text" placeholder="Your Name" required>
+                                        <input type="email" placeholder="Your Email" required>
+                                        <input type="text" placeholder="Subject" required>
+                                        <textarea placeholder="Message" rows="4" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; resize: vertical;"></textarea>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class="btn-secondary" data-close>Cancel</button>
+                                    <button class="btn-primary" id="sendMessage">Send Message</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupModalHandling();
+            }
+
+            setupModalHandling() {
+                const openModal = this.shadowRoot.querySelector('#openModal');
+                const openFormModal = this.shadowRoot.querySelector('#openFormModal');
+                const basicModal = this.shadowRoot.querySelector('#basicModal');
+                const formModal = this.shadowRoot.querySelector('#formModal');
+                const closeButtons = this.shadowRoot.querySelectorAll('[data-close]');
+                const confirmAction = this.shadowRoot.querySelector('#confirmAction');
+                const sendMessage = this.shadowRoot.querySelector('#sendMessage');
+                
+                openModal.addEventListener('click', () => {
+                    basicModal.classList.add('open');
+                });
+
+                openFormModal.addEventListener('click', () => {
+                    formModal.classList.add('open');
+                });
+
+                closeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        basicModal.classList.remove('open');
+                        formModal.classList.remove('open');
+                    });
+                });
+
+                // Close on overlay click
+                [basicModal, formModal].forEach(modal => {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove('open');
+                        }
+                    });
+                });
+
+                confirmAction.addEventListener('click', () => {
+                    alert('Action confirmed!');
+                    basicModal.classList.remove('open');
+                });
+
+                sendMessage.addEventListener('click', () => {
+                    alert('Message sent successfully!');
+                    formModal.classList.remove('open');
+                });
+            }
+        }
+
+        class SidebarComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.isExpanded = true;
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #795548;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #d7ccc8 0%, #a1887f 100%);
+                        }
+                        .sidebar-container {
+                            display: flex;
+                            gap: 10px;
+                            min-height: 200px;
+                        }
+                        .sidebar {
+                            background-color: #795548;
+                            color: white;
+                            padding: 15px;
+                            border-radius: 4px;
+                            transition: width 0.3s ease;
+                            width: 200px;
+                            position: relative;
+                        }
+                        .sidebar.collapsed {
+                            width: 60px;
+                        }
+                        .sidebar-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 15px;
+                            border-bottom: 1px solid rgba(255,255,255,0.3);
+                            padding-bottom: 10px;
+                        }
+                        .toggle-btn {
+                            background: none;
+                            border: none;
+                            color: white;
+                            font-size: 18px;
+                            cursor: pointer;
+                            padding: 5px;
+                            border-radius: 3px;
+                        }
+                        .toggle-btn:hover { background-color: rgba(255,255,255,0.2); }
+                        .sidebar-nav {
+                            list-style: none;
+                            padding: 0;
+                            margin: 0;
+                        }
+                        .nav-item {
+                            margin-bottom: 8px;
+                        }
+                        .nav-link {
+                            display: flex;
+                            align-items: center;
+                            padding: 8px;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            transition: background-color 0.2s;
+                        }
+                        .nav-link:hover, .nav-link.active {
+                            background-color: rgba(255,255,255,0.2);
+                        }
+                        .nav-icon {
+                            margin-right: 10px;
+                            width: 20px;
+                            text-align: center;
+                        }
+                        .nav-text {
+                            transition: opacity 0.3s;
+                        }
+                        .sidebar.collapsed .nav-text,
+                        .sidebar.collapsed .sidebar-title {
+                            opacity: 0;
+                            pointer-events: none;
+                        }
+                        .main-content {
+                            flex: 1;
+                            background-color: white;
+                            padding: 15px;
+                            border-radius: 4px;
+                        }
+                        .content-actions {
+                            margin-top: 15px;
+                        }
+                        .content-actions button {
+                            background-color: #795548;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                        .content-actions button:hover { background-color: #5D4037; }
+                    </style>
+                    <div>
+                        <h3>Sidebar Component</h3>
+                        <div class="sidebar-container">
+                            <aside class="sidebar" id="sidebar">
+                                <div class="sidebar-header">
+                                    <span class="sidebar-title">Menu</span>
+                                    <button class="toggle-btn" id="toggleSidebar">☰</button>
+                                </div>
+                                <nav>
+                                    <ul class="sidebar-nav">
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link active">
+                                                <span class="nav-icon">🏠</span>
+                                                <span class="nav-text">Dashboard</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <span class="nav-icon">👤</span>
+                                                <span class="nav-text">Profile</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <span class="nav-icon">⚙️</span>
+                                                <span class="nav-text">Settings</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="#" class="nav-link">
+                                                <span class="nav-icon">📊</span>
+                                                <span class="nav-text">Analytics</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </aside>
+                            <main class="main-content">
+                                <h4>Main Content Area</h4>
+                                <p>This is the main content area. The sidebar can be collapsed or expanded.</p>
+                                <div class="content-actions">
+                                    <button id="newItem">New Item</button>
+                                    <button id="saveChanges">Save Changes</button>
+                                    <button id="exportData">Export Data</button>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                `;
+                this.setupSidebarHandling();
+            }
+
+            setupSidebarHandling() {
+                const sidebar = this.shadowRoot.querySelector('#sidebar');
+                const toggleBtn = this.shadowRoot.querySelector('#toggleSidebar');
+                const navLinks = this.shadowRoot.querySelectorAll('.nav-link');
+                const actionButtons = this.shadowRoot.querySelectorAll('.content-actions button');
+                
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('collapsed');
+                    this.isExpanded = !sidebar.classList.contains('collapsed');
+                });
+
+                navLinks.forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        link.classList.add('active');
+                        console.log(`Navigated to: ${link.querySelector('.nav-text').textContent}`);
+                    });
+                });
+
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+            }
+        }
+
+        class AccordionComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #009688;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #b2dfdb 0%, #4db6ac 100%);
+                        }
+                        .accordion {
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            overflow: hidden;
+                        }
+                        .accordion-item {
+                            border-bottom: 1px solid #ddd;
+                        }
+                        .accordion-item:last-child {
+                            border-bottom: none;
+                        }
+                        .accordion-header {
+                            background-color: #009688;
+                            color: white;
+                            padding: 15px;
+                            cursor: pointer;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            transition: background-color 0.2s;
+                        }
+                        .accordion-header:hover {
+                            background-color: #00796B;
+                        }
+                        .accordion-header.active {
+                            background-color: #00695C;
+                        }
+                        .accordion-content {
+                            background-color: white;
+                            padding: 0 15px;
+                            max-height: 0;
+                            overflow: hidden;
+                            transition: max-height 0.3s ease;
+                        }
+                        .accordion-content.active {
+                            max-height: 200px;
+                            padding: 15px;
+                        }
+                        .accordion-icon {
+                            transition: transform 0.3s;
+                        }
+                        .accordion-header.active .accordion-icon {
+                            transform: rotate(180deg);
+                        }
+                        .content-buttons {
+                            margin-top: 10px;
+                        }
+                        .content-buttons button {
+                            background-color: #009688;
+                            color: white;
+                            padding: 6px 12px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 8px;
+                        }
+                        .content-buttons button:hover { background-color: #00796B; }
+                        input { 
+                            width: 100%; 
+                            padding: 8px; 
+                            border: 1px solid #ddd; 
+                            border-radius: 4px; 
+                            box-sizing: border-box; 
+                            margin: 5px 0;
+                        }
+                    </style>
+                    <div>
+                        <h3>Accordion Component</h3>
+                        <div class="accordion">
+                            <div class="accordion-item">
+                                <div class="accordion-header" data-target="0">
+                                    <span>Account Settings</span>
+                                    <span class="accordion-icon">▼</span>
+                                </div>
+                                <div class="accordion-content" data-content="0">
+                                    <p>Manage your account preferences and security settings.</p>
+                                    <input type="text" placeholder="Username" value="john_doe">
+                                    <input type="email" placeholder="Email" value="john@example.com">
+                                    <div class="content-buttons">
+                                        <button>Update Account</button>
+                                        <button>Change Password</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <div class="accordion-header" data-target="1">
+                                    <span>Notification Preferences</span>
+                                    <span class="accordion-icon">▼</span>
+                                </div>
+                                <div class="accordion-content" data-content="1">
+                                    <p>Configure how you receive notifications.</p>
+                                    <label><input type="checkbox" checked> Email notifications</label><br>
+                                    <label><input type="checkbox"> SMS notifications</label><br>
+                                    <label><input type="checkbox" checked> Push notifications</label><br>
+                                    <div class="content-buttons">
+                                        <button>Save Preferences</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <div class="accordion-header" data-target="2">
+                                    <span>Privacy Settings</span>
+                                    <span class="accordion-icon">▼</span>
+                                </div>
+                                <div class="accordion-content" data-content="2">
+                                    <p>Control your privacy and data sharing options.</p>
+                                    <select style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;">
+                                        <option>Public Profile</option>
+                                        <option selected>Friends Only</option>
+                                        <option>Private</option>
+                                    </select>
+                                    <div class="content-buttons">
+                                        <button>Update Privacy</button>
+                                        <button>Download Data</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupAccordionHandling();
+            }
+
+            setupAccordionHandling() {
+                const headers = this.shadowRoot.querySelectorAll('.accordion-header');
+                const contents = this.shadowRoot.querySelectorAll('.accordion-content');
+                const buttons = this.shadowRoot.querySelectorAll('.content-buttons button');
+                
+                headers.forEach(header => {
+                    header.addEventListener('click', () => {
+                        const target = header.dataset.target;
+                        const content = this.shadowRoot.querySelector(`[data-content="${target}"]`);
+                        const isActive = header.classList.contains('active');
+                        
+                        // Close all other accordion items
+                        headers.forEach(h => h.classList.remove('active'));
+                        contents.forEach(c => c.classList.remove('active'));
+                        
+                        // Toggle current item
+                        if (!isActive) {
+                            header.classList.add('active');
+                            content.classList.add('active');
+                        }
+                    });
+                });
+
+                buttons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+            }
+        }
+
+        // UI Controls
+        class DropdownComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.isOpen = false;
+                this.selectedValue = 'Select an option';
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #3F51B5;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #c5cae9 0%, #9fa8da 100%);
+                        }
+                        .dropdown {
+                            position: relative;
+                            display: inline-block;
+                            width: 200px;
+                            margin: 10px 0;
+                        }
+                        .dropdown-button {
+                            background-color: #3F51B5;
+                            color: white;
+                            padding: 10px 15px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            width: 100%;
+                            text-align: left;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+                        .dropdown-button:hover { background-color: #303F9F; }
+                        .dropdown-content {
+                            display: none;
+                            position: absolute;
+                            background-color: white;
+                            min-width: 100%;
+                            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                            border-radius: 4px;
+                            z-index: 1;
+                            top: 100%;
+                            left: 0;
+                        }
+                        .dropdown-content.open { display: block; }
+                        .dropdown-item {
+                            color: black;
+                            padding: 12px 16px;
+                            text-decoration: none;
+                            display: block;
+                            cursor: pointer;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .dropdown-item:last-child { border-bottom: none; }
+                        .dropdown-item:hover { background-color: #f1f1f1; }
+                        .dropdown-icon {
+                            transition: transform 0.3s;
+                        }
+                        .dropdown-button.open .dropdown-icon {
+                            transform: rotate(180deg);
+                        }
+                        .multiple-dropdowns {
+                            display: flex;
+                            gap: 20px;
+                            flex-wrap: wrap;
+                            margin-top: 15px;
+                        }
+                        .action-buttons {
+                            margin-top: 15px;
+                        }
+                        .action-buttons button {
+                            background-color: #3F51B5;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                        .action-buttons button:hover { background-color: #303F9F; }
+                        .selection-display {
+                            margin-top: 10px;
+                            padding: 10px;
+                            background-color: rgba(255,255,255,0.7);
+                            border-radius: 4px;
+                        }
+                    </style>
+                    <div>
+                        <h3>Dropdown Component</h3>
+                        <div class="dropdown" id="mainDropdown">
+                            <button class="dropdown-button" id="dropdownBtn">
+                                <span id="selectedText">Select an option</span>
+                                <span class="dropdown-icon">▼</span>
+                            </button>
+                            <div class="dropdown-content" id="dropdownContent">
+                                <div class="dropdown-item" data-value="option1">Option 1 - Dashboard</div>
+                                <div class="dropdown-item" data-value="option2">Option 2 - Analytics</div>
+                                <div class="dropdown-item" data-value="option3">Option 3 - Settings</div>
+                                <div class="dropdown-item" data-value="option4">Option 4 - Profile</div>
+                                <div class="dropdown-item" data-value="option5">Option 5 - Help</div>
+                            </div>
+                        </div>
+
+                        <div class="multiple-dropdowns">
+                            <div class="dropdown">
+                                <button class="dropdown-button" id="categoryBtn">
+                                    <span>Category</span>
+                                    <span class="dropdown-icon">▼</span>
+                                </button>
+                                <div class="dropdown-content" id="categoryContent">
+                                    <div class="dropdown-item" data-category="tech">Technology</div>
+                                    <div class="dropdown-item" data-category="business">Business</div>
+                                    <div class="dropdown-item" data-category="design">Design</div>
+                                </div>
+                            </div>
+
+                            <div class="dropdown">
+                                <button class="dropdown-button" id="priorityBtn">
+                                    <span>Priority</span>
+                                    <span class="dropdown-icon">▼</span>
+                                </button>
+                                <div class="dropdown-content" id="priorityContent">
+                                    <div class="dropdown-item" data-priority="high">High Priority</div>
+                                    <div class="dropdown-item" data-priority="medium">Medium Priority</div>
+                                    <div class="dropdown-item" data-priority="low">Low Priority</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button id="applyFilters">Apply Filters</button>
+                            <button id="clearFilters">Clear Filters</button>
+                            <button id="exportSelection">Export Selection</button>
+                        </div>
+
+                        <div class="selection-display" id="selectionDisplay">
+                            No selections made
+                        </div>
+                    </div>
+                `;
+                this.setupDropdownHandling();
+            }
+
+            setupDropdownHandling() {
+                const dropdowns = this.shadowRoot.querySelectorAll('.dropdown');
+                const actionButtons = this.shadowRoot.querySelectorAll('.action-buttons button');
+                const selectionDisplay = this.shadowRoot.querySelector('#selectionDisplay');
+                let selections = {
+                    main: null,
+                    category: null,
+                    priority: null
+                };
+
+                dropdowns.forEach(dropdown => {
+                    const button = dropdown.querySelector('.dropdown-button');
+                    const content = dropdown.querySelector('.dropdown-content');
+                    const items = dropdown.querySelectorAll('.dropdown-item');
+                    
+                    button.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        // Close other dropdowns
+                        dropdowns.forEach(otherDropdown => {
+                            if (otherDropdown !== dropdown) {
+                                otherDropdown.querySelector('.dropdown-button').classList.remove('open');
+                                otherDropdown.querySelector('.dropdown-content').classList.remove('open');
+                            }
+                        });
+                        
+                        button.classList.toggle('open');
+                        content.classList.toggle('open');
+                    });
+
+                    items.forEach(item => {
+                        item.addEventListener('click', () => {
+                            const selectedText = button.querySelector('span:first-child');
+                            selectedText.textContent = item.textContent;
+                            
+                            // Store selection
+                            if (button.id === 'dropdownBtn') {
+                                selections.main = item.dataset.value || item.textContent;
+                            } else if (button.id === 'categoryBtn') {
+                                selections.category = item.dataset.category || item.textContent;
+                            } else if (button.id === 'priorityBtn') {
+                                selections.priority = item.dataset.priority || item.textContent;
+                            }
+                            
+                            this.updateSelectionDisplay(selections, selectionDisplay);
+                            
+                            button.classList.remove('open');
+                            content.classList.remove('open');
+                        });
+                    });
+                });
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', () => {
+                    dropdowns.forEach(dropdown => {
+                        dropdown.querySelector('.dropdown-button').classList.remove('open');
+                        dropdown.querySelector('.dropdown-content').classList.remove('open');
+                    });
+                });
+
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.id;
+                        if (action === 'clearFilters') {
+                            selections = { main: null, category: null, priority: null };
+                            dropdowns.forEach(dropdown => {
+                                const selectedText = dropdown.querySelector('.dropdown-button span:first-child');
+                                const buttonId = dropdown.querySelector('.dropdown-button').id;
+                                if (buttonId === 'dropdownBtn') {
+                                    selectedText.textContent = 'Select an option';
+                                } else if (buttonId === 'categoryBtn') {
+                                    selectedText.textContent = 'Category';
+                                } else if (buttonId === 'priorityBtn') {
+                                    selectedText.textContent = 'Priority';
+                                }
+                            });
+                            this.updateSelectionDisplay(selections, selectionDisplay);
+                        } else {
+                            alert(`${button.textContent} clicked (demo only)`);
+                        }
+                    });
+                });
+            }
+
+            updateSelectionDisplay(selections, display) {
+                const activeSelections = Object.entries(selections)
+                    .filter(([key, value]) => value !== null)
+                    .map(([key, value]) => `${key}: ${value}`);
+                
+                display.textContent = activeSelections.length > 0 
+                    ? `Selected: ${activeSelections.join(', ')}`
+                    : 'No selections made';
+            }
+        }
+
+        class SliderComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #FF9800;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #ffe0b2 0%, #ffb74d 100%);
+                        }
+                        .slider-group {
+                            margin-bottom: 20px;
+                            padding: 15px;
+                            background-color: rgba(255,255,255,0.7);
+                            border-radius: 8px;
+                        }
+                        .slider-label {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 10px;
+                            font-weight: bold;
+                        }
+                        input[type="range"] {
+                            width: 100%;
+                            height: 6px;
+                            border-radius: 3px;
+                            background: #ddd;
+                            outline: none;
+                            -webkit-appearance: none;
+                        }
+                        input[type="range"]::-webkit-slider-thumb {
+                            -webkit-appearance: none;
+                            appearance: none;
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: #FF9800;
+                            cursor: pointer;
+                        }
+                        input[type="range"]::-moz-range-thumb {
+                            width: 20px;
+                            height: 20px;
+                            border-radius: 50%;
+                            background: #FF9800;
+                            cursor: pointer;
+                            border: none;
+                        }
+                        .value-display {
+                            font-size: 18px;
+                            color: #FF9800;
+                            font-weight: bold;
+                        }
+                        .control-buttons {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 15px;
+                            flex-wrap: wrap;
+                        }
+                        .control-buttons button {
+                            background-color: #FF9800;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .control-buttons button:hover { background-color: #F57C00; }
+                        .preset-buttons {
+                            display: flex;
+                            gap: 5px;
+                            margin-top: 10px;
+                        }
+                        .preset-buttons button {
+                            background-color: #FFC107;
+                            color: black;
+                            padding: 4px 8px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                        }
+                        .preset-buttons button:hover { background-color: #FFB300; }
+                        .settings-summary {
+                            margin-top: 15px;
+                            padding: 10px;
+                            background-color: rgba(255, 152, 0, 0.1);
+                            border-radius: 4px;
+                            border-left: 4px solid #FF9800;
+                        }
+                    </style>
+                    <div>
+                        <h3>Slider Controls</h3>
+                        
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Volume</span>
+                                <span class="value-display" id="volumeValue">50</span>
+                            </div>
+                            <input type="range" id="volumeSlider" min="0" max="100" value="50">
+                            <div class="preset-buttons">
+                                <button data-slider="volume" data-value="0">Mute</button>
+                                <button data-slider="volume" data-value="25">Low</button>
+                                <button data-slider="volume" data-value="75">High</button>
+                                <button data-slider="volume" data-value="100">Max</button>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Brightness</span>
+                                <span class="value-display" id="brightnessValue">80</span>
+                            </div>
+                            <input type="range" id="brightnessSlider" min="10" max="100" value="80">
+                            <div class="preset-buttons">
+                                <button data-slider="brightness" data-value="20">Dim</button>
+                                <button data-slider="brightness" data-value="50">Normal</button>
+                                <button data-slider="brightness" data-value="100">Bright</button>
+                            </div>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-label">
+                                <span>Temperature (°C)</span>
+                                <span class="value-display" id="temperatureValue">22</span>
+                            </div>
+                            <input type="range" id="temperatureSlider" min="15" max="30" value="22">
+                            <div class="preset-buttons">
+                                <button data-slider="temperature" data-value="18">Cool</button>
+                                <button data-slider="temperature" data-value="22">Comfort</button>
+                                <button data-slider="temperature" data-value="26">Warm</button>
+                            </div>
+                        </div>
+
+                        <div class="control-buttons">
+                            <button id="resetAll">Reset All</button>
+                            <button id="saveSettings">Save Settings</button>
+                            <button id="loadDefaults">Load Defaults</button>
+                            <button id="exportSettings">Export Settings</button>
+                        </div>
+
+                        <div class="settings-summary" id="settingsSummary">
+                            Current Settings: Volume: 50, Brightness: 80, Temperature: 22°C
+                        </div>
+                    </div>
+                `;
+                this.setupSliderHandling();
+            }
+
+            setupSliderHandling() {
+                const sliders = this.shadowRoot.querySelectorAll('input[type="range"]');
+                const presetButtons = this.shadowRoot.querySelectorAll('.preset-buttons button');
+                const controlButtons = this.shadowRoot.querySelectorAll('.control-buttons button');
+                const summary = this.shadowRoot.querySelector('#settingsSummary');
+                
+                const values = {
+                    volume: 50,
+                    brightness: 80,
+                    temperature: 22
+                };
+
+                sliders.forEach(slider => {
+                    slider.addEventListener('input', () => {
+                        const type = slider.id.replace('Slider', '');
+                        const value = slider.value;
+                        values[type] = parseInt(value);
+                        
+                        const valueDisplay = this.shadowRoot.querySelector(`#${type}Value`);
+                        if (type === 'temperature') {
+                            valueDisplay.textContent = value;
+                        } else {
+                            valueDisplay.textContent = value;
+                        }
+                        
+                        this.updateSummary(values, summary);
+                    });
+                });
+
+                presetButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const sliderType = button.dataset.slider;
+                        const value = button.dataset.value;
+                        const slider = this.shadowRoot.querySelector(`#${sliderType}Slider`);
+                        const valueDisplay = this.shadowRoot.querySelector(`#${sliderType}Value`);
+                        
+                        slider.value = value;
+                        valueDisplay.textContent = value;
+                        values[sliderType] = parseInt(value);
+                        
+                        this.updateSummary(values, summary);
+                    });
+                });
+
+                controlButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.id;
+                        switch (action) {
+                            case 'resetAll':
+                                values.volume = 50;
+                                values.brightness = 80;
+                                values.temperature = 22;
+                                this.updateAllSliders(values);
+                                this.updateSummary(values, summary);
+                                break;
+                            case 'loadDefaults':
+                                values.volume = 75;
+                                values.brightness = 60;
+                                values.temperature = 20;
+                                this.updateAllSliders(values);
+                                this.updateSummary(values, summary);
+                                break;
+                            default:
+                                alert(`${button.textContent} clicked (demo only)`);
+                        }
+                    });
+                });
+            }
+
+            updateAllSliders(values) {
+                Object.entries(values).forEach(([type, value]) => {
+                    const slider = this.shadowRoot.querySelector(`#${type}Slider`);
+                    const valueDisplay = this.shadowRoot.querySelector(`#${type}Value`);
+                    slider.value = value;
+                    valueDisplay.textContent = value;
+                });
+            }
+
+            updateSummary(values, summary) {
+                summary.textContent = `Current Settings: Volume: ${values.volume}, Brightness: ${values.brightness}, Temperature: ${values.temperature}°C`;
+            }
+        }
+
+        class ToggleSwitchComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #4CAF50;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #c8e6c9 0%, #81c784 100%);
+                        }
+                        .toggle-group {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 15px;
+                            padding: 10px;
+                            background-color: rgba(255,255,255,0.7);
+                            border-radius: 8px;
+                        }
+                        .toggle-info {
+                            flex: 1;
+                        }
+                        .toggle-label {
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .toggle-description {
+                            font-size: 14px;
+                            color: #666;
+                        }
+                        .toggle-switch {
+                            position: relative;
+                            width: 60px;
+                            height: 30px;
+                            background-color: #ccc;
+                            border-radius: 15px;
+                            cursor: pointer;
+                            transition: background-color 0.3s;
+                        }
+                        .toggle-switch.active {
+                            background-color: #4CAF50;
+                        }
+                        .toggle-slider {
+                            position: absolute;
+                            top: 3px;
+                            left: 3px;
+                            width: 24px;
+                            height: 24px;
+                            background-color: white;
+                            border-radius: 50%;
+                            transition: transform 0.3s;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                        }
+                        .toggle-switch.active .toggle-slider {
+                            transform: translateX(30px);
+                        }
+                        .status-panel {
+                            margin-top: 20px;
+                            padding: 15px;
+                            background-color: rgba(76, 175, 80, 0.1);
+                            border-radius: 8px;
+                            border-left: 4px solid #4CAF50;
+                        }
+                        .status-list {
+                            list-style: none;
+                            padding: 0;
+                            margin: 10px 0;
+                        }
+                        .status-item {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 5px 0;
+                            border-bottom: 1px solid #eee;
+                        }
+                        .status-item:last-child {
+                            border-bottom: none;
+                        }
+                        .status-indicator {
+                            width: 12px;
+                            height: 12px;
+                            border-radius: 50%;
+                            background-color: #ccc;
+                        }
+                        .status-indicator.active {
+                            background-color: #4CAF50;
+                        }
+                        .control-buttons {
+                            margin-top: 15px;
+                        }
+                        .control-buttons button {
+                            background-color: #4CAF50;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 10px;
+                        }
+                        .control-buttons button:hover { background-color: #45a049; }
+                    </style>
+                    <div>
+                        <h3>Toggle Switch Controls</h3>
+                        
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">WiFi Connection</div>
+                                <div class="toggle-description">Enable wireless internet connection</div>
+                            </div>
+                            <div class="toggle-switch active" data-toggle="wifi">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Bluetooth</div>
+                                <div class="toggle-description">Connect to nearby devices</div>
+                            </div>
+                            <div class="toggle-switch" data-toggle="bluetooth">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Push Notifications</div>
+                                <div class="toggle-description">Receive real-time alerts</div>
+                            </div>
+                            <div class="toggle-switch active" data-toggle="notifications">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Auto-Save</div>
+                                <div class="toggle-description">Automatically save changes</div>
+                            </div>
+                            <div class="toggle-switch active" data-toggle="autosave">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="toggle-group">
+                            <div class="toggle-info">
+                                <div class="toggle-label">Dark Mode</div>
+                                <div class="toggle-description">Use dark theme</div>
+                            </div>
+                            <div class="toggle-switch" data-toggle="darkmode">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </div>
+
+                        <div class="status-panel">
+                            <h4>System Status</h4>
+                            <ul class="status-list" id="statusList">
+                                <li class="status-item">
+                                    <span>WiFi</span>
+                                    <span class="status-indicator active" id="wifi-status"></span>
+                                </li>
+                                <li class="status-item">
+                                    <span>Bluetooth</span>
+                                    <span class="status-indicator" id="bluetooth-status"></span>
+                                </li>
+                                <li class="status-item">
+                                    <span>Notifications</span>
+                                    <span class="status-indicator active" id="notifications-status"></span>
+                                </li>
+                                <li class="status-item">
+                                    <span>Auto-Save</span>
+                                    <span class="status-indicator active" id="autosave-status"></span>
+                                </li>
+                                <li class="status-item">
+                                    <span>Dark Mode</span>
+                                    <span class="status-indicator" id="darkmode-status"></span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="control-buttons">
+                            <button id="enableAll">Enable All</button>
+                            <button id="disableAll">Disable All</button>
+                            <button id="resetToDefaults">Reset to Defaults</button>
+                            <button id="applySettings">Apply Settings</button>
+                        </div>
+                    </div>
+                `;
+                this.setupToggleHandling();
+            }
+
+            setupToggleHandling() {
+                const toggles = this.shadowRoot.querySelectorAll('.toggle-switch');
+                const controlButtons = this.shadowRoot.querySelectorAll('.control-buttons button');
+                
+                const states = {
+                    wifi: true,
+                    bluetooth: false,
+                    notifications: true,
+                    autosave: true,
+                    darkmode: false
+                };
+
+                toggles.forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const toggleName = toggle.dataset.toggle;
+                        const isActive = toggle.classList.contains('active');
+                        
+                        toggle.classList.toggle('active');
+                        states[toggleName] = !isActive;
+                        
+                        this.updateStatusIndicator(toggleName, states[toggleName]);
+                    });
+                });
+
+                controlButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.id;
+                        switch (action) {
+                            case 'enableAll':
+                                Object.keys(states).forEach(key => {
+                                    states[key] = true;
+                                    const toggle = this.shadowRoot.querySelector(`[data-toggle="${key}"]`);
+                                    toggle.classList.add('active');
+                                    this.updateStatusIndicator(key, true);
+                                });
+                                break;
+                            case 'disableAll':
+                                Object.keys(states).forEach(key => {
+                                    states[key] = false;
+                                    const toggle = this.shadowRoot.querySelector(`[data-toggle="${key}"]`);
+                                    toggle.classList.remove('active');
+                                    this.updateStatusIndicator(key, false);
+                                });
+                                break;
+                            case 'resetToDefaults':
+                                states.wifi = true;
+                                states.bluetooth = false;
+                                states.notifications = true;
+                                states.autosave = true;
+                                states.darkmode = false;
+                                
+                                Object.entries(states).forEach(([key, value]) => {
+                                    const toggle = this.shadowRoot.querySelector(`[data-toggle="${key}"]`);
+                                    toggle.classList.toggle('active', value);
+                                    this.updateStatusIndicator(key, value);
+                                });
+                                break;
+                            default:
+                                alert(`${button.textContent} clicked (demo only)`);
+                        }
+                    });
+                });
+            }
+
+            updateStatusIndicator(toggleName, isActive) {
+                const indicator = this.shadowRoot.querySelector(`#${toggleName}-status`);
+                indicator.classList.toggle('active', isActive);
+            }
+        }
+
+        class ProgressBarComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #2196F3;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #bbdefb 0%, #64b5f6 100%);
+                        }
+                        .progress-group {
+                            margin-bottom: 20px;
+                            padding: 15px;
+                            background-color: rgba(255,255,255,0.7);
+                            border-radius: 8px;
+                        }
+                        .progress-label {
+                            display: flex;
+                            justify-content: space-between;
+                            margin-bottom: 8px;
+                            font-weight: bold;
+                        }
+                        .progress-container {
+                            width: 100%;
+                            height: 20px;
+                            background-color: #e0e0e0;
+                            border-radius: 10px;
+                            overflow: hidden;
+                            position: relative;
+                        }
+                        .progress-bar {
+                            height: 100%;
+                            background: linear-gradient(90deg, #2196F3, #1976D2);
+                            border-radius: 10px;
+                            transition: width 0.3s ease;
+                            position: relative;
+                        }
+                        .progress-bar.animated {
+                            background: linear-gradient(90deg, #2196F3, #1976D2, #2196F3);
+                            background-size: 200% 100%;
+                            animation: progressMove 2s linear infinite;
+                        }
+                        @keyframes progressMove {
+                            0% { background-position: 200% 0; }
+                            100% { background-position: -200% 0; }
+                        }
+                        .progress-text {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            color: white;
+                            font-size: 12px;
+                            font-weight: bold;
+                            text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+                        }
+                        .control-buttons {
+                            display: flex;
+                            gap: 10px;
+                            margin-top: 15px;
+                            flex-wrap: wrap;
+                        }
+                        .control-buttons button {
+                            background-color: #2196F3;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .control-buttons button:hover { background-color: #1976D2; }
+                        .control-buttons input {
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            width: 60px;
+                        }
+                        .task-list {
+                            margin-top: 15px;
+                        }
+                        .task-item {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 8px;
+                            margin-bottom: 8px;
+                            background-color: rgba(255,255,255,0.5);
+                            border-radius: 4px;
+                        }
+                        .task-progress {
+                            width: 100px;
+                            height: 8px;
+                            background-color: #e0e0e0;
+                            border-radius: 4px;
+                            overflow: hidden;
+                        }
+                        .task-progress .progress-bar {
+                            height: 100%;
+                            border-radius: 4px;
+                        }
+                    </style>
+                    <div>
+                        <h3>Progress Bar Component</h3>
+                        
+                        <div class="progress-group">
+                            <div class="progress-label">
+                                <span>File Upload</span>
+                                <span id="uploadPercent">45%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="uploadProgress" style="width: 45%">
+                                    <div class="progress-text">45%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress-group">
+                            <div class="progress-label">
+                                <span>Download Progress</span>
+                                <span id="downloadPercent">72%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar animated" id="downloadProgress" style="width: 72%">
+                                    <div class="progress-text">72%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="progress-group">
+                            <div class="progress-label">
+                                <span>Installation</span>
+                                <span id="installPercent">28%</span>
+                            </div>
+                            <div class="progress-container">
+                                <div class="progress-bar" id="installProgress" style="width: 28%">
+                                    <div class="progress-text">28%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-buttons">
+                            <input type="number" id="progressInput" min="0" max="100" value="50" placeholder="0-100">
+                            <button id="setProgress">Set Progress</button>
+                            <button id="startUpload">Start Upload</button>
+                            <button id="pauseProgress">Pause All</button>
+                            <button id="resetProgress">Reset All</button>
+                            <button id="completeAll">Complete All</button>
+                        </div>
+
+                        <div class="task-list">
+                            <h4>Task Progress</h4>
+                            <div class="task-item">
+                                <span>Process Data</span>
+                                <div class="task-progress">
+                                    <div class="progress-bar" style="width: 85%"></div>
+                                </div>
+                                <span>85%</span>
+                            </div>
+                            <div class="task-item">
+                                <span>Generate Report</span>
+                                <div class="task-progress">
+                                    <div class="progress-bar" style="width: 60%"></div>
+                                </div>
+                                <span>60%</span>
+                            </div>
+                            <div class="task-item">
+                                <span>Send Notifications</span>
+                                <div class="task-progress">
+                                    <div class="progress-bar" style="width: 30%"></div>
+                                </div>
+                                <span>30%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupProgressHandling();
+            }
+
+            setupProgressHandling() {
+                const progressBars = this.shadowRoot.querySelectorAll('.progress-bar');
+                const controlButtons = this.shadowRoot.querySelectorAll('.control-buttons button');
+                const progressInput = this.shadowRoot.querySelector('#progressInput');
+                
+                let intervals = {};
+
+                controlButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.id;
+                        switch (action) {
+                            case 'setProgress':
+                                const value = Math.min(100, Math.max(0, parseInt(progressInput.value) || 0));
+                                this.updateProgress('uploadProgress', 'uploadPercent', value);
+                                break;
+                            case 'startUpload':
+                                this.simulateProgress('uploadProgress', 'uploadPercent');
+                                break;
+                            case 'pauseProgress':
+                                Object.values(intervals).forEach(interval => clearInterval(interval));
+                                intervals = {};
+                                break;
+                            case 'resetProgress':
+                                Object.values(intervals).forEach(interval => clearInterval(interval));
+                                intervals = {};
+                                this.updateProgress('uploadProgress', 'uploadPercent', 0);
+                                this.updateProgress('downloadProgress', 'downloadPercent', 0);
+                                this.updateProgress('installProgress', 'installPercent', 0);
+                                break;
+                            case 'completeAll':
+                                Object.values(intervals).forEach(interval => clearInterval(interval));
+                                intervals = {};
+                                this.updateProgress('uploadProgress', 'uploadPercent', 100);
+                                this.updateProgress('downloadProgress', 'downloadPercent', 100);
+                                this.updateProgress('installProgress', 'installPercent', 100);
+                                break;
+                        }
+                    });
+                });
+            }
+
+            updateProgress(barId, percentId, value) {
+                const progressBar = this.shadowRoot.querySelector(`#${barId}`);
+                const percentText = this.shadowRoot.querySelector(`#${percentId}`);
+                const progressText = progressBar.querySelector('.progress-text');
+                
+                progressBar.style.width = value + '%';
+                percentText.textContent = value + '%';
+                if (progressText) {
+                    progressText.textContent = value + '%';
+                }
+            }
+
+            simulateProgress(barId, percentId) {
+                let currentValue = 0;
+                const interval = setInterval(() => {
+                    currentValue += Math.random() * 5;
+                    if (currentValue >= 100) {
+                        currentValue = 100;
+                        clearInterval(interval);
+                    }
+                    this.updateProgress(barId, percentId, Math.floor(currentValue));
+                }, 200);
+            }
+        }
+
+        // Data Display Components
+        class DataTableComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #673AB7;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #d1c4e9 0%, #b39ddb 100%);
+                        }
+                        .table-container {
+                            overflow-x: auto;
+                            background-color: white;
+                            border-radius: 8px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            min-width: 600px;
+                        }
+                        th, td {
+                            padding: 12px;
+                            text-align: left;
+                            border-bottom: 1px solid #ddd;
+                        }
+                        th {
+                            background-color: #673AB7;
+                            color: white;
+                            font-weight: bold;
+                            position: sticky;
+                            top: 0;
+                        }
+                        tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                        tr:hover {
+                            background-color: #f0f0f0;
+                        }
+                        .table-controls {
+                            display: flex;
+                            gap: 10px;
+                            margin-bottom: 15px;
+                            flex-wrap: wrap;
+                            align-items: center;
+                        }
+                        .table-controls input, .table-controls select {
+                            padding: 8px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                        }
+                        .table-controls button {
+                            background-color: #673AB7;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .table-controls button:hover { background-color: #5E35B1; }
+                        .status-badge {
+                            padding: 4px 8px;
+                            border-radius: 12px;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+                        .status-active { background-color: #4CAF50; color: white; }
+                        .status-pending { background-color: #FF9800; color: white; }
+                        .status-inactive { background-color: #f44336; color: white; }
+                        .action-buttons {
+                            display: flex;
+                            gap: 5px;
+                        }
+                        .action-btn {
+                            padding: 4px 8px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                        }
+                        .btn-edit { background-color: #2196F3; color: white; }
+                        .btn-delete { background-color: #f44336; color: white; }
+                        .btn-view { background-color: #4CAF50; color: white; }
+                        .pagination {
+                            display: flex;
+                            justify-content: center;
+                            gap: 5px;
+                            margin-top: 15px;
+                        }
+                        .page-btn {
+                            padding: 8px 12px;
+                            border: 1px solid #673AB7;
+                            background-color: white;
+                            color: #673AB7;
+                            cursor: pointer;
+                            border-radius: 4px;
+                        }
+                        .page-btn.active, .page-btn:hover {
+                            background-color: #673AB7;
+                            color: white;
+                        }
+                    </style>
+                    <div>
+                        <h3>Data Table Component</h3>
+                        
+                        <div class="table-controls">
+                            <input type="text" id="searchInput" placeholder="Search users...">
+                            <select id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="pending">Pending</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                            <button id="addUser">Add User</button>
+                            <button id="exportData">Export CSV</button>
+                            <button id="refreshData">Refresh</button>
+                            <button id="bulkActions">Bulk Actions</button>
+                        </div>
+
+                        <div class="table-container">
+                            <table id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Role</th>
+                                        <th>Last Login</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <tr>
+                                        <td><input type="checkbox" class="row-select"></td>
+                                        <td>001</td>
+                                        <td>John Doe</td>
+                                        <td>john@example.com</td>
+                                        <td><span class="status-badge status-active">Active</span></td>
+                                        <td>Admin</td>
+                                        <td>2024-01-15</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn btn-view">View</button>
+                                                <button class="action-btn btn-edit">Edit</button>
+                                                <button class="action-btn btn-delete">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="row-select"></td>
+                                        <td>002</td>
+                                        <td>Jane Smith</td>
+                                        <td>jane@example.com</td>
+                                        <td><span class="status-badge status-pending">Pending</span></td>
+                                        <td>User</td>
+                                        <td>2024-01-14</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn btn-view">View</button>
+                                                <button class="action-btn btn-edit">Edit</button>
+                                                <button class="action-btn btn-delete">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="row-select"></td>
+                                        <td>003</td>
+                                        <td>Bob Johnson</td>
+                                        <td>bob@example.com</td>
+                                        <td><span class="status-badge status-inactive">Inactive</span></td>
+                                        <td>User</td>
+                                        <td>2024-01-10</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn btn-view">View</button>
+                                                <button class="action-btn btn-edit">Edit</button>
+                                                <button class="action-btn btn-delete">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="checkbox" class="row-select"></td>
+                                        <td>004</td>
+                                        <td>Alice Brown</td>
+                                        <td>alice@example.com</td>
+                                        <td><span class="status-badge status-active">Active</span></td>
+                                        <td>Manager</td>
+                                        <td>2024-01-16</td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="action-btn btn-view">View</button>
+                                                <button class="action-btn btn-edit">Edit</button>
+                                                <button class="action-btn btn-delete">Delete</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pagination">
+                            <button class="page-btn">‹ Previous</button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn">Next ›</button>
+                        </div>
+                    </div>
+                `;
+                this.setupTableHandling();
+            }
+
+            setupTableHandling() {
+                const controlButtons = this.shadowRoot.querySelectorAll('.table-controls button');
+                const actionButtons = this.shadowRoot.querySelectorAll('.action-btn');
+                const selectAllCheckbox = this.shadowRoot.querySelector('#selectAll');
+                const rowCheckboxes = this.shadowRoot.querySelectorAll('.row-select');
+                const searchInput = this.shadowRoot.querySelector('#searchInput');
+                const statusFilter = this.shadowRoot.querySelector('#statusFilter');
+                const pageButtons = this.shadowRoot.querySelectorAll('.page-btn');
+
+                // Control buttons
+                controlButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+
+                // Action buttons
+                actionButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.textContent;
+                        const row = button.closest('tr');
+                        const userId = row.cells[1].textContent;
+                        alert(`${action} user ${userId} (demo only)`);
+                    });
+                });
+
+                // Select all checkbox
+                selectAllCheckbox.addEventListener('change', () => {
+                    rowCheckboxes.forEach(checkbox => {
+                        checkbox.checked = selectAllCheckbox.checked;
+                    });
+                });
+
+                // Row checkboxes
+                rowCheckboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        const checkedCount = [...rowCheckboxes].filter(cb => cb.checked).length;
+                        selectAllCheckbox.checked = checkedCount === rowCheckboxes.length;
+                        selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+                    });
+                });
+
+                // Search and filter
+                searchInput.addEventListener('input', () => {
+                    console.log('Search:', searchInput.value);
+                });
+
+                statusFilter.addEventListener('change', () => {
+                    console.log('Filter by status:', statusFilter.value);
+                });
+
+                // Pagination
+                pageButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        pageButtons.forEach(btn => btn.classList.remove('active'));
+                        if (!isNaN(button.textContent)) {
+                            button.classList.add('active');
+                        }
+                        console.log('Navigate to page:', button.textContent);
+                    });
+                });
+            }
+        }
+
+        // Media Components
+        class ImageGalleryComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #E91E63;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+                        }
+                        .gallery-controls {
+                            display: flex;
+                            gap: 10px;
+                            margin-bottom: 15px;
+                            flex-wrap: wrap;
+                        }
+                        .gallery-controls button, .gallery-controls input {
+                            background-color: #E91E63;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .gallery-controls button:hover { background-color: #C2185B; }
+                        .gallery-controls input {
+                            background-color: white;
+                            color: #333;
+                            border: 1px solid #ddd;
+                        }
+                        .gallery-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                            gap: 15px;
+                            background-color: rgba(255,255,255,0.7);
+                            padding: 15px;
+                            border-radius: 8px;
+                        }
+                        .image-item {
+                            position: relative;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            cursor: pointer;
+                            transition: transform 0.3s;
+                            background-color: #f0f0f0;
+                            height: 150px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                        .image-item:hover {
+                            transform: scale(1.05);
+                        }
+                        .image-placeholder {
+                            font-size: 24px;
+                            color: #999;
+                        }
+                        .image-overlay {
+                            position: absolute;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+                            color: white;
+                            padding: 10px;
+                            font-size: 12px;
+                        }
+                        .view-mode-buttons {
+                            margin-top: 10px;
+                        }
+                        .view-mode-buttons button {
+                            background-color: #E91E63;
+                            color: white;
+                            padding: 6px 12px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-right: 8px;
+                        }
+                        .view-mode-buttons button.active {
+                            background-color: #AD1457;
+                        }
+                        .gallery-grid.list-view {
+                            grid-template-columns: 1fr;
+                        }
+                        .gallery-grid.list-view .image-item {
+                            height: 60px;
+                            flex-direction: row;
+                            padding: 10px;
+                        }
+                    </style>
+                    <div>
+                        <h3>Image Gallery Component</h3>
+                        
+                        <div class="gallery-controls">
+                            <input type="file" id="imageUpload" accept="image/*" multiple>
+                            <button id="uploadBtn">Upload Images</button>
+                            <button id="addSample">Add Sample Images</button>
+                            <button id="clearGallery">Clear Gallery</button>
+                            <button id="slideshow">Start Slideshow</button>
+                        </div>
+
+                        <div class="view-mode-buttons">
+                            <button class="active" id="gridView">Grid View</button>
+                            <button id="listView">List View</button>
+                        </div>
+
+                        <div class="gallery-grid" id="galleryGrid">
+                            <div class="image-item">
+                                <div class="image-placeholder">🖼️</div>
+                                <div class="image-overlay">Sample Image 1</div>
+                            </div>
+                            <div class="image-item">
+                                <div class="image-placeholder">🌄</div>
+                                <div class="image-overlay">Sample Image 2</div>
+                            </div>
+                            <div class="image-item">
+                                <div class="image-placeholder">🏞️</div>
+                                <div class="image-overlay">Sample Image 3</div>
+                            </div>
+                            <div class="image-item">
+                                <div class="image-placeholder">🌅</div>
+                                <div class="image-overlay">Sample Image 4</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupGalleryHandling();
+            }
+
+            setupGalleryHandling() {
+                const controls = this.shadowRoot.querySelectorAll('.gallery-controls button');
+                const viewModeButtons = this.shadowRoot.querySelectorAll('.view-mode-buttons button');
+                const galleryGrid = this.shadowRoot.querySelector('#galleryGrid');
+                const imageUpload = this.shadowRoot.querySelector('#imageUpload');
+                
+                controls.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const action = button.id;
+                        switch (action) {
+                            case 'addSample':
+                                this.addSampleImages();
+                                break;
+                            case 'clearGallery':
+                                galleryGrid.innerHTML = '';
+                                break;
+                            default:
+                                alert(`${button.textContent} clicked (demo only)`);
+                        }
+                    });
+                });
+
+                viewModeButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        viewModeButtons.forEach(btn => btn.classList.remove('active'));
+                        button.classList.add('active');
+                        
+                        if (button.id === 'listView') {
+                            galleryGrid.classList.add('list-view');
+                        } else {
+                            galleryGrid.classList.remove('list-view');
+                        }
+                    });
+                });
+
+                imageUpload.addEventListener('change', () => {
+                    alert('File upload simulated (demo only)');
+                });
+
+                // Click handlers for gallery items
+                galleryGrid.addEventListener('click', (e) => {
+                    const imageItem = e.target.closest('.image-item');
+                    if (imageItem) {
+                        const title = imageItem.querySelector('.image-overlay').textContent;
+                        alert(`Viewing: ${title}`);
+                    }
+                });
+            }
+
+            addSampleImages() {
+                const galleryGrid = this.shadowRoot.querySelector('#galleryGrid');
+                const emojis = ['🌺', '🌸', '🌻', '🌹', '🌷', '🌵'];
+                const names = ['Flower 1', 'Flower 2', 'Sunflower', 'Rose', 'Tulip', 'Cactus'];
+                
+                emojis.forEach((emoji, index) => {
+                    const imageItem = document.createElement('div');
+                    imageItem.className = 'image-item';
+                    imageItem.innerHTML = `
+                        <div class="image-placeholder">${emoji}</div>
+                        <div class="image-overlay">${names[index]}</div>
+                    `;
+                    galleryGrid.appendChild(imageItem);
+                });
+            }
+        }
+
+        class VideoPlayerComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #9C27B0;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #e1bee7 0%, #ba68c8 100%);
+                        }
+                        .video-container {
+                            background-color: #000;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            position: relative;
+                            margin-bottom: 15px;
+                        }
+                        .video-placeholder {
+                            width: 100%;
+                            height: 200px;
+                            background: linear-gradient(45deg, #333, #555);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-size: 48px;
+                        }
+                        .video-controls {
+                            background-color: rgba(0,0,0,0.8);
+                            color: white;
+                            padding: 10px;
+                            display: flex;
+                            align-items: center;
+                            gap: 15px;
+                        }
+                        .play-pause-btn {
+                            background: none;
+                            border: none;
+                            color: white;
+                            font-size: 20px;
+                            cursor: pointer;
+                            width: 40px;
+                            height: 40px;
+                            border-radius: 50%;
+                            background-color: #9C27B0;
+                        }
+                        .play-pause-btn:hover {
+                            background-color: #7B1FA2;
+                        }
+                        .progress-container {
+                            flex: 1;
+                            height: 6px;
+                            background-color: #444;
+                            border-radius: 3px;
+                            overflow: hidden;
+                            cursor: pointer;
+                        }
+                        .progress-bar {
+                            height: 100%;
+                            background-color: #9C27B0;
+                            width: 30%;
+                            transition: width 0.3s;
+                        }
+                        .time-display {
+                            font-size: 14px;
+                            min-width: 80px;
+                        }
+                        .volume-control {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                        }
+                        .volume-slider {
+                            width: 80px;
+                        }
+                        .external-controls {
+                            display: flex;
+                            gap: 10px;
+                            flex-wrap: wrap;
+                        }
+                        .external-controls button {
+                            background-color: #9C27B0;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .external-controls button:hover {
+                            background-color: #7B1FA2;
+                        }
+                        .video-info {
+                            margin-top: 10px;
+                            padding: 10px;
+                            background-color: rgba(255,255,255,0.7);
+                            border-radius: 4px;
+                        }
+                        .video-title {
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .video-details {
+                            font-size: 14px;
+                            color: #666;
+                        }
+                    </style>
+                    <div>
+                        <h3>Video Player Component</h3>
+                        
+                        <div class="video-container">
+                            <div class="video-placeholder">▶️</div>
+                            <div class="video-controls">
+                                <button class="play-pause-btn" id="playPauseBtn">▶️</button>
+                                <div class="progress-container" id="progressContainer">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                                <div class="time-display" id="timeDisplay">01:30 / 05:00</div>
+                                <div class="volume-control">
+                                    <span>🔊</span>
+                                    <input type="range" class="volume-slider" min="0" max="100" value="70">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="external-controls">
+                            <button id="loadVideo">Load Video</button>
+                            <button id="fullscreen">Fullscreen</button>
+                            <button id="downloadVideo">Download</button>
+                            <button id="shareVideo">Share</button>
+                            <button id="addPlaylist">Add to Playlist</button>
+                        </div>
+
+                        <div class="video-info">
+                            <div class="video-title">Sample Video Title</div>
+                            <div class="video-details">Duration: 5:00 | Resolution: 1080p | Size: 45MB</div>
+                        </div>
+                    </div>
+                `;
+                this.setupVideoHandling();
+            }
+
+            setupVideoHandling() {
+                const playPauseBtn = this.shadowRoot.querySelector('#playPauseBtn');
+                const progressContainer = this.shadowRoot.querySelector('#progressContainer');
+                const progressBar = this.shadowRoot.querySelector('#progressBar');
+                const timeDisplay = this.shadowRoot.querySelector('#timeDisplay');
+                const volumeSlider = this.shadowRoot.querySelector('.volume-slider');
+                const externalControls = this.shadowRoot.querySelectorAll('.external-controls button');
+                
+                let isPlaying = false;
+                let currentTime = 90; // seconds
+                let duration = 300; // seconds
+                let playInterval;
+
+                playPauseBtn.addEventListener('click', () => {
+                    isPlaying = !isPlaying;
+                    playPauseBtn.textContent = isPlaying ? '⏸️' : '▶️';
+                    
+                    if (isPlaying) {
+                        playInterval = setInterval(() => {
+                            currentTime += 1;
+                            if (currentTime >= duration) {
+                                currentTime = duration;
+                                isPlaying = false;
+                                playPauseBtn.textContent = '▶️';
+                                clearInterval(playInterval);
+                            }
+                            this.updateProgress();
+                        }, 1000);
+                    } else {
+                        clearInterval(playInterval);
+                    }
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const clickPosition = (e.clientX - rect.left) / rect.width;
+                    currentTime = Math.floor(clickPosition * duration);
+                    this.updateProgress();
+                });
+
+                volumeSlider.addEventListener('input', () => {
+                    console.log('Volume set to:', volumeSlider.value);
+                });
+
+                externalControls.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+
+                this.updateProgress = () => {
+                    const progress = (currentTime / duration) * 100;
+                    progressBar.style.width = progress + '%';
+                    timeDisplay.textContent = `${this.formatTime(currentTime)} / ${this.formatTime(duration)}`;
+                };
+
+                this.formatTime = (seconds) => {
+                    const minutes = Math.floor(seconds / 60);
+                    const remainingSeconds = seconds % 60;
+                    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+                };
+            }
+        }
+
+        class AudioPlayerComponent extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+                this.shadowRoot.innerHTML = `
+                    <style>
+                        :host {
+                            display: block;
+                            border: 2px solid #607D8B;
+                            padding: 15px;
+                            margin: 10px;
+                            border-radius: 8px;
+                            background: linear-gradient(135deg, #cfd8dc 0%, #90a4ae 100%);
+                        }
+                        .audio-player {
+                            background-color: rgba(255,255,255,0.9);
+                            border-radius: 8px;
+                            padding: 20px;
+                            margin-bottom: 15px;
+                        }
+                        .track-info {
+                            text-align: center;
+                            margin-bottom: 20px;
+                        }
+                        .track-title {
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 5px;
+                        }
+                        .track-artist {
+                            color: #666;
+                            margin-bottom: 10px;
+                        }
+                        .album-art {
+                            width: 80px;
+                            height: 80px;
+                            background: linear-gradient(45deg, #607D8B, #455A64);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            margin: 0 auto 15px;
+                            font-size: 24px;
+                            color: white;
+                        }
+                        .player-controls {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 15px;
+                            margin-bottom: 20px;
+                        }
+                        .control-btn {
+                            background: none;
+                            border: none;
+                            font-size: 24px;
+                            cursor: pointer;
+                            width: 50px;
+                            height: 50px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            transition: background-color 0.3s;
+                        }
+                        .control-btn:hover {
+                            background-color: #f0f0f0;
+                        }
+                        .play-btn {
+                            background-color: #607D8B;
+                            color: white;
+                            font-size: 32px;
+                        }
+                        .play-btn:hover {
+                            background-color: #455A64;
+                        }
+                        .progress-section {
+                            margin-bottom: 15px;
+                        }
+                        .progress-bar-container {
+                            width: 100%;
+                            height: 6px;
+                            background-color: #ddd;
+                            border-radius: 3px;
+                            overflow: hidden;
+                            cursor: pointer;
+                            margin-bottom: 10px;
+                        }
+                        .progress-bar {
+                            height: 100%;
+                            background-color: #607D8B;
+                            width: 25%;
+                            transition: width 0.3s;
+                        }
+                        .time-info {
+                            display: flex;
+                            justify-content: space-between;
+                            font-size: 14px;
+                            color: #666;
+                        }
+                        .volume-section {
+                            display: flex;
+                            align-items: center;
+                            gap: 10px;
+                            margin-bottom: 15px;
+                        }
+                        .volume-icon {
+                            font-size: 18px;
+                        }
+                        .volume-slider {
+                            flex: 1;
+                            height: 4px;
+                        }
+                        .playlist-controls {
+                            display: flex;
+                            gap: 10px;
+                            flex-wrap: wrap;
+                        }
+                        .playlist-controls button {
+                            background-color: #607D8B;
+                            color: white;
+                            padding: 8px 16px;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                        }
+                        .playlist-controls button:hover {
+                            background-color: #455A64;
+                        }
+                        .equalizer {
+                            margin-top: 15px;
+                            padding: 15px;
+                            background-color: rgba(96, 125, 139, 0.1);
+                            border-radius: 8px;
+                        }
+                        .eq-sliders {
+                            display: flex;
+                            gap: 10px;
+                            justify-content: space-around;
+                        }
+                        .eq-slider {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 5px;
+                        }
+                        .eq-slider input {
+                            writing-mode: bt-lr;
+                            -webkit-appearance: slider-vertical;
+                            width: 20px;
+                            height: 100px;
+                        }
+                        .eq-label {
+                            font-size: 12px;
+                            color: #666;
+                        }
+                    </style>
+                    <div>
+                        <h3>Audio Player Component</h3>
+                        
+                        <div class="audio-player">
+                            <div class="track-info">
+                                <div class="album-art">🎵</div>
+                                <div class="track-title">Sample Audio Track</div>
+                                <div class="track-artist">Artist Name</div>
+                            </div>
+
+                            <div class="player-controls">
+                                <button class="control-btn" id="prevBtn">⏮️</button>
+                                <button class="control-btn play-btn" id="playBtn">▶️</button>
+                                <button class="control-btn" id="nextBtn">⏭️</button>
+                                <button class="control-btn" id="shuffleBtn">🔀</button>
+                                <button class="control-btn" id="repeatBtn">🔁</button>
+                            </div>
+
+                            <div class="progress-section">
+                                <div class="progress-bar-container" id="progressContainer">
+                                    <div class="progress-bar" id="progressBar"></div>
+                                </div>
+                                <div class="time-info">
+                                    <span id="currentTime">01:23</span>
+                                    <span id="totalTime">04:45</span>
+                                </div>
+                            </div>
+
+                            <div class="volume-section">
+                                <span class="volume-icon">🔊</span>
+                                <input type="range" class="volume-slider" min="0" max="100" value="80">
+                                <span id="volumeLevel">80%</span>
+                            </div>
+                        </div>
+
+                        <div class="playlist-controls">
+                            <button id="loadTrack">Load Track</button>
+                            <button id="addPlaylist">Add to Playlist</button>
+                            <button id="downloadTrack">Download</button>
+                            <button id="shareTrack">Share</button>
+                            <button id="showLyrics">Show Lyrics</button>
+                        </div>
+
+                        <div class="equalizer">
+                            <h4>Equalizer</h4>
+                            <div class="eq-sliders">
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="0" orient="vertical">
+                                    <div class="eq-label">60Hz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="2" orient="vertical">
+                                    <div class="eq-label">170Hz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="-1" orient="vertical">
+                                    <div class="eq-label">310Hz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="3" orient="vertical">
+                                    <div class="eq-label">600Hz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="1" orient="vertical">
+                                    <div class="eq-label">1kHz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="0" orient="vertical">
+                                    <div class="eq-label">3kHz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="-2" orient="vertical">
+                                    <div class="eq-label">6kHz</div>
+                                </div>
+                                <div class="eq-slider">
+                                    <input type="range" min="-10" max="10" value="1" orient="vertical">
+                                    <div class="eq-label">12kHz</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.setupAudioHandling();
+            }
+
+            setupAudioHandling() {
+                const playBtn = this.shadowRoot.querySelector('#playBtn');
+                const controlBtns = this.shadowRoot.querySelectorAll('.control-btn');
+                const playlistControls = this.shadowRoot.querySelectorAll('.playlist-controls button');
+                const volumeSlider = this.shadowRoot.querySelector('.volume-slider');
+                const volumeLevel = this.shadowRoot.querySelector('#volumeLevel');
+                const progressContainer = this.shadowRoot.querySelector('#progressContainer');
+                const progressBar = this.shadowRoot.querySelector('#progressBar');
+                const eqSliders = this.shadowRoot.querySelectorAll('.eq-slider input');
+                
+                let isPlaying = false;
+                let currentTime = 83; // seconds
+                let duration = 285; // seconds
+
+                playBtn.addEventListener('click', () => {
+                    isPlaying = !isPlaying;
+                    playBtn.textContent = isPlaying ? '⏸️' : '▶️';
+                    console.log(isPlaying ? 'Playing' : 'Paused');
+                });
+
+                controlBtns.forEach(btn => {
+                    if (btn !== playBtn) {
+                        btn.addEventListener('click', () => {
+                            const action = btn.id;
+                            console.log(`Audio control: ${action}`);
+                        });
+                    }
+                });
+
+                playlistControls.forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert(`${button.textContent} clicked (demo only)`);
+                    });
+                });
+
+                volumeSlider.addEventListener('input', () => {
+                    volumeLevel.textContent = volumeSlider.value + '%';
+                });
+
+                progressContainer.addEventListener('click', (e) => {
+                    const rect = progressContainer.getBoundingClientRect();
+                    const clickPosition = (e.clientX - rect.left) / rect.width;
+                    currentTime = Math.floor(clickPosition * duration);
+                    this.updateProgress();
+                });
+
+                eqSliders.forEach(slider => {
+                    slider.addEventListener('input', () => {
+                        console.log('EQ adjustment:', slider.value);
+                    });
+                });
+
+                this.updateProgress = () => {
+                    const progress = (currentTime / duration) * 100;
+                    progressBar.style.width = progress + '%';
+                };
+            }
+        }
+
+        // Register all new components
+        customElements.define('user-form-component', UserFormComponent);
+        customElements.define('login-form-component', LoginFormComponent);
+        customElements.define('search-box-component', SearchBoxComponent);
+        customElements.define('rating-component', RatingComponent);
+        customElements.define('nav-menu-component', NavMenuComponent);
+        customElements.define('breadcrumb-component', BreadcrumbComponent);
+        customElements.define('tab-panel-component', TabPanelComponent);
+        customElements.define('modal-component', ModalComponent);
+        customElements.define('sidebar-component', SidebarComponent);
+        customElements.define('accordion-component', AccordionComponent);
+        customElements.define('dropdown-component', DropdownComponent);
+        customElements.define('slider-component', SliderComponent);
+        customElements.define('toggle-switch-component', ToggleSwitchComponent);
+        customElements.define('progress-bar-component', ProgressBarComponent);
+        customElements.define('data-table-component', DataTableComponent);
+        customElements.define('chart-component', ChartComponent);
+        customElements.define('notification-component', NotificationComponent);
+        customElements.define('image-gallery-component', ImageGalleryComponent);
+        customElements.define('video-player-component', VideoPlayerComponent);
+        customElements.define('audio-player-component', AudioPlayerComponent);
+    </script>
+
+    <!-- Scanner Integration -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultsElement = document.getElementById('results');
+            const scanButton = document.getElementById('scanBtn');
+            const clearButton = document.getElementById('clearBtn');
+            const downloadButton = document.getElementById('downloadBtn');
+            let scanResults = null;
+            
+            scanButton.addEventListener('click', async () => {
+                resultsElement.textContent = 'Scanning...';
+                downloadButton.disabled = true;
+                
+                try {
+                    scanResults = await WebComponentsScanner.scan();
+                    resultsElement.textContent = JSON.stringify(scanResults, null, 2);
+                    downloadButton.disabled = false;
+                } catch (error) {
+                    resultsElement.textContent = 'Error scanning components: ' + error.message;
+                    console.error('Scanner error:', error);
+                    scanResults = null;
+                }
+            });
+            
+            clearButton.addEventListener('click', () => {
+                resultsElement.textContent = 'Results will appear here after scanning...';
+                downloadButton.disabled = true;
+                scanResults = null;
+            });
+            
+            downloadButton.addEventListener('click', () => {
+                if (!scanResults) return;
+                
+                // Create a file download
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(scanResults, null, 2));
+                const downloadAnchorNode = document.createElement('a');
+                downloadAnchorNode.setAttribute("href", dataStr);
+                downloadAnchorNode.setAttribute("download", "web-components-scan-" + new Date().toISOString() + ".json");
+                document.body.appendChild(downloadAnchorNode); // required for firefox
+                downloadAnchorNode.click();
+                downloadAnchorNode.remove();
+            });
+        });
+    </script>
+</body>
+</html>

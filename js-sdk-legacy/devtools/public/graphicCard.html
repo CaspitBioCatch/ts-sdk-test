@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+  <div id="result"></div>
+  <script>
+
+    function getMappedRenderInfo () {
+      "use strict";
+      var graphicInfo = {renderer: "unknown", vendor: "", version: ""};
+      if (window.WebGLRenderingContext || window.WebGL2RenderingContext) {
+        var canvas = document.createElement("canvas");
+        canvas.id = "cd_canvas";
+        var gl = canvas.getContext("experimental-webgl");
+
+        if (gl) {
+          var dbgRenderInfo = gl.getExtension("WEBGL_debug_renderer_info");
+          if (dbgRenderInfo != null) {
+            graphicInfo.renderer = gl
+                    .getParameter(dbgRenderInfo.UNMASKED_RENDERER_WEBGL);
+            graphicInfo.vendor = gl
+                    .getParameter(dbgRenderInfo.UNMASKED_VENDOR_WEBGL);
+
+            var stringIntel = "Intel";
+            var stringHDgraphics = "HD Graphics";
+
+            var stringBDW = "BDW (5th gen core)";
+            var stringSKL = "SKL (6th gen core)";
+
+            if (graphicInfo.renderer.indexOf(stringIntel) > -1 && graphicInfo.renderer.indexOf(stringHDgraphics) > -1) {
+              var numberPattern = /\d+/g;
+              var matches = graphicInfo.renderer.match(numberPattern);
+              var minVersion = matches[0];
+
+              if (minVersion > 500 && minVersion < 599) {
+                graphicInfo.version = stringSKL;
+              }
+
+              if (minVersion > 5300 && minVersion < 6999) {
+                graphicInfo.version = stringBDW;
+              }
+            }
+          }
+        }
+      }
+      return graphicInfo;
+    }
+
+    "use strict";
+    var graphicInfo = getMappedRenderInfo();
+    console.log('!!!: renderer:' + graphicInfo.renderer, ' vendor:' + graphicInfo.vendor, ' version: ' + graphicInfo.version);
+    document.getElementById('result').innerHTML = 'renderer:' + graphicInfo.renderer + ' vendor:' + graphicInfo.vendor + ' version: ' + graphicInfo.version;
+  </script>
+</body>
+</html>

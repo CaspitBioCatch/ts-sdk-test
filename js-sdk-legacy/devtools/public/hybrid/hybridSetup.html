@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>New Hybrid Solution</title>
+    <script src="hybridSetupUtils.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #181A1F;
+            color: #A2A7B8;
+        }
+
+        .field-group {
+            margin-bottom: 30px;
+        }
+
+        .heading {
+            text-align: center;
+            color: #A2A7B8;
+            font-size: 28px;
+            margin-bottom: 50px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input, select {
+            width: 725px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #A2A7B8;
+            background-color: #1F2230;
+            color: #A2A7B8;
+        }
+
+        button {
+            background-color: #6172F3;
+            color: #FFFFFF;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #5568D9;
+        }
+
+        .mandatory {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+<div class="heading">
+    Welcome to Hybrid Solution Next Generation
+</div>
+<div id="container" style="display: flex; align-items: center; flex-direction: column;">
+    <div class="field-group" style="margin-bottom: 30px;">
+        <label for="csid">Set Customer Session ID (CSID): <span class="mandatory">*</span></label>
+        <input style="width: 400px;" type="text" id="csid" name="csid" required>
+        <select style="width: 300px;" id="csidSource">
+            <option value="url">URL</option>
+            <option value="metatag" selected>Meta Tag</option>
+            <option value="localstorage">Local Storage</option>
+        </select>
+    </div>
+
+    <div class="field-group">
+        <label for="agentType">Agent Type Mode: <span class="mandatory">*</span></label>
+        <select id="agentType">
+            <option value="secondary">Secondary</option>
+            <option value="primary" selected>Primary</option>
+        </select>
+    </div>
+
+    <div class="field-group">
+        <label for="collectionMode">Collection Mode: <span class="mandatory">*</span></label>
+        <select id="collectionMode">
+            <option value="full" selected>Full</option>
+            <option value="lean">Lean</option>
+        </select>
+    </div>
+
+    <div class="field-group">
+        <label for="sessionHistory">Clear History?</label>
+        <select id="sessionHistory">
+            <option value="yes" selected>Yes</option>
+            <option value="no">No</option>
+        </select>
+    </div>
+
+    <button onclick="collectData()" style="width: 300px">Submit</button>
+</div>
+</div>
+</body>
+</html>

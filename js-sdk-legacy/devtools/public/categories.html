@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /> -->
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+    <script>
+        document.cookie = "bcCsid=cookieValue";
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://rawgit.com https://cdn.jsdelivr.net; worker-src  https://localhost:9000/customerJs/worker_DevVersion.js blob:;">
+
+    <!-- 1.4 metatags -->
+    <meta name='bcscriptlocation' content='https://localhost:8000/customerJs/'/>
+    <meta name='bcslothlocation' content='bcqa.customers.biocatch.com'/>
+    <meta name='bcsid' content='devTeamTest'></meta>
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid'></meta>
+    <meta name='bcacid' content='devTeamTestAccountId'></meta>
+    <!-- 2.0 metatags -->
+    <!--<meta name='cdConfLocation' content='/customerJs/testCustomerConfig.js'></meta>-->
+    <meta name='cdConfLocation'
+          content='https://wup-dtrackers.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=dtrackers'/>
+    <!--    https://wup-client.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=client-->
+    <!--    https://wup-hybridsolution.bc2.customers.biocatch.com/api/v4/wup?cid=hybridsolution-->
+    <meta name='cdLogAddress'
+          content='https://log-client.bc2.customers.biocatch.com/api/v1/sendLogs'/>
+    <meta name="cdWorkerUrl" content="customerJs/worker_DevVersion.js"/>
+    <meta name='my_csid' content='bob-csid'/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript" src="customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="customerJs/slothDebug_DevVersion.js"></script>
+    <title>Category Service Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 700px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        input {
+            padding: 12px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: #007bff;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 20px;
+            background-color: #f9f9f9;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            color: #333;
+            overflow-y: auto;
+            max-height: 300px;
+            font-size: 14px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            padding-right: 30px;
+
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .result-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Category Service Test - All Cases</h2>
+    <form id="testForm">
+        <div class="grid-container">
+            <div class="field-group">
+                <label for="email">Email Address:</label>
+                <input type="text" id="email" name="email" placeholder="Enter your email" autocomplete="email"/>
+            </div>
+
+            <div class="field-group">
+                <label for="zipcode">Zip Code:</label>
+                <input type="text" id="zipcode" name="zipcode" placeholder="Enter zip code"/>
+            </div>
+
+            <div class="field-group">
+                <label for="address">Address:</label>
+                <input type="text" id="address" name="city" placeholder="Enter address"/>
+            </div>
+
+            <div class="field-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password"/>
+            </div>
+
+            <div class="field-group">
+                <label for="phone">Phone Number:</label>
+                <input type="text" id="phone" name="phonenumber" placeholder="Enter your phone number"/>
+            </div>
+
+            <div class="field-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Enter username"/>
+            </div>
+
+            <div class="field-group">
+                <label for="otp">OTP:</label>
+                <input type="text" id="otp" name="otp" placeholder="Enter OTP"/>
+            </div>
+
+            <div class="field-group">
+                <label for="ssn">SSN:</label>
+                <input type="text" id="ssn" name="ssn" placeholder="Enter SSN"/>
+            </div>
+
+            <div class="field-group">
+                <label for="fullname">Full Name:</label>
+                <input type="text" id="fullname" name="fullname" placeholder="Enter full name"/>
+            </div>
+
+            <div class="field-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="city" placeholder="Enter city"/>
+            </div>
+
+            <div class="field-group">
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="street" placeholder="Enter street"/>
+            </div>
+
+            <div class="field-group">
+                <label for="country">Country:</label>
+                <input type="text" id="country" name="country" placeholder="Enter country"/>
+            </div>
+
+            <div class="field-group">
+                <label for="state">State:</label>
+                <input type="text" id="state" name="state" placeholder="Enter state"/>
+            </div>
+
+            <div class="field-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="text" id="dob" name="dob" placeholder="Enter date of birth"/>
+            </div>
+
+            <div class="field-group">
+                <label for="amount">Amount:</label>
+                <input type="text" id="amount" name="amount" placeholder="Enter amount"/>
+            </div>
+
+            <div class="field-group">
+                <label for="income">Annual/Monthly Income:</label>
+                <input type="text" id="income" name="income" placeholder="Enter income"/>
+            </div>
+
+            <div class="field-group">
+                <label for="payee_account">Payee Account:</label>
+                <input type="text" id="payee_account" name="payee_account"
+                       placeholder="Enter payee account"/>
+            </div>
+
+            <div class="field-group">
+                <label for="payee_name">Payee Name:</label>
+                <input type="text" id="payee_name" name="payee_name" placeholder="Enter payee name"/>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button type="button" onclick="categorizeFields()">Check Categories</button>
+        </div>
+    </form>
+
+    <div id="result" class="result-container">Results will appear here...</div>
+</div>
+</body>
+
+</html>

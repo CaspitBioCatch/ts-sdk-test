@@ -1,0 +1,1000 @@
+package CD.Protocol;
+
+enum PlatformType
+{
+    mobile = 0;
+    web = 1;
+    mobileBrowser = 2;
+    hybrid = 3;
+}
+message Elements {
+    repeated sint32 elementHash = 1 [packed=true];
+    repeated string tagName = 2;
+    repeated string id = 3;
+    repeated string name = 4;
+    repeated string type = 5;
+    repeated sint32 leftPosition = 6 [packed=true];
+    repeated sint32 topPosition = 7 [packed=true];
+    repeated sint32 width = 8 [packed=true];
+    repeated sint32 height = 9 [packed=true];
+    repeated string className = 10;
+    repeated string href = 11;
+    repeated string title = 12;
+    repeated string alt = 13;
+    repeated string innerText = 14;
+}
+enum IsTrusted {
+    False = 0;
+    True = 1;
+    NotPresent = 2;
+}
+message MouseEvents {
+    enum MouseEventType
+    {
+        mousemove = 0;
+        mousedown = 1;
+        mouseup = 2;
+        click = 3;
+        dblclick = 4;
+        mouseleave = 5;
+        mouseenter = 6;
+        mousewheel = 7;
+        mouseout = 8;
+        mouseover = 9;
+        unknown = 100;
+    }
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated MouseEventType eventType = 102 [packed=true];
+    repeated IsTrusted isTrusted = 103;
+
+    repeated sint32 pageX = 1 [packed=true];
+    repeated sint32 pageY = 2 [packed=true];
+    repeated sint32 clientX = 3 [packed=true];
+    repeated sint32 clientY = 4 [packed=true];
+    repeated int32 button = 5 [packed=true];
+    repeated double wheelDelta = 6 [packed=true];
+    repeated sint32 elementHash = 7 [packed=true];
+}
+message KeyEvents {
+    enum KeyEventType
+    {
+        keyup = 0;
+        keydown = 1;
+        keypress = 2;
+        keycombo = 3;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated KeyEventType eventType = 102 [packed=true];
+    repeated IsTrusted isTrusted = 103;
+
+    repeated int32 charCode = 1 [packed=true];
+    repeated string character = 2;
+    repeated sint32 elementHash = 3 [packed=true];
+    repeated sint32 keyComboType = 4 [packed=true];
+    repeated bool isShift = 5 [packed=true];
+    repeated bool isAlt = 6 [packed=true];
+    repeated bool isMetaKey = 7 [packed=true];
+    enum KeyLocationType
+    {
+        unknown = 0;
+        left = 1;
+        right = 2;
+        notRelevant = 3;
+    }
+    
+    repeated KeyLocationType keyLocation = 8 [packed=true];
+}
+message FormFields {
+    optional sint32 elementHash = 1;
+    repeated sint32 value = 2;
+}
+message FormFieldsArray {
+    repeated FormFields formFields= 1;
+}
+message FormEvents {
+    enum FormEventType
+    {
+        submit = 0;
+    }
+    repeated FormEventType formEventType = 1;
+    repeated sint32 elementHash = 2 [packed=true];
+    repeated FormFieldsArray formFieldsArray = 3;
+    
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    
+}
+message WindowEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated WindowEventType eventType = 102 [packed=true];	
+    repeated IsTrusted isTrusted = 103;
+
+    enum WindowEventType
+    {
+        start = 0;
+        scroll = 1;
+        resize = 2;
+        focus = 3;
+        blur = 4;
+        tabFocus = 5;
+        tabBlur =  6;
+    }
+
+    repeated sint32 screenWidth = 1 [packed=true];
+    repeated sint32 screenHeight = 2 [packed=true];
+    repeated sint32 clientWidth = 3 [packed=true];
+    repeated sint32 clientHeight = 4 [packed=true];
+    repeated sint32 documentWidth = 5 [packed=true];
+    repeated sint32 documentHeight = 6 [packed=true];
+    repeated sint32 scrollTop = 7 [packed=true];
+    repeated sint32 scrollLeft = 8 [packed=true];
+    repeated sint32 windowInnerWidth = 9 [packed=true];
+    repeated sint32 windowInnerHeight = 10 [packed=true];
+    repeated sint32 windowOuterWidth = 11 [packed=true];
+    repeated sint32 windowOuterHeight = 12 [packed=true];
+}
+message ElementEvents {
+    enum ElementEventType
+    {
+        input = 0;
+        initial = 1;
+        focus = 2;
+        blur = 3;
+        change = 4;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated ElementEventType eventType = 102 [packed=true];
+    repeated IsTrusted isTrusted = 103;
+    
+    repeated sint32 elementHash = 1 [packed=true];
+    repeated sint32 length = 2 [packed=true];
+    repeated ElementValues elementValues = 3;
+    repeated sint32 selected = 4 [packed=true];
+    repeated bool isABC = 5;
+    repeated sint32 dataUid = 6 [packed=true];
+}
+enum AbcType 
+{
+    NoAbc = 0;
+    Mouse_Dissapear = 1;
+    Mouse_ButtonInaction = 2;
+    Mouse_ButtonDelay = 3;
+    Mouse_Distortion = 4;
+    Keyboard_Delay = 5;
+    Keyboard_Displacement = 6;
+    Keyboard_Replacement = 7;
+    Mouse_IconWait = 8;
+    Browser_SimulateLoad = 9;
+    Keyboard_DelayNote = 10;
+    Keyboard_DelayAccount = 11;
+    Mouse_RotationAndScale = 12;
+    Mouse_DisappearUntilStrongMovement1 = 13;
+    Mouse_DisappearUntilStrongMovement2 = 14;
+    Mouse_DisappearUntilStrongMovement3 = 15;
+    Mouse_DisappearUntilStrongMovement4 = 16;
+    Mouse_DisappearUntilStrongMovement5 = 17;
+    Fixed_Abc = 1000;
+}
+message AbcEvents {
+    enum AbcPhase
+    {
+        NoPhase = 0;
+        Training = 1;
+        Application = 2;
+        NoSession = 3;
+    }
+    enum AbcStatus
+    {
+        New = 0;
+        Running = 1;
+        Done = 2;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated AbcType eventType = 102 [packed=true];	
+
+    repeated double relativeEndTime = 1 [packed=true];
+    repeated string args = 2;
+    repeated AbcPhase phase = 3;
+}
+enum KeyboardCollectionMode
+{
+    NoCollection = 0;
+    MetadataOnly = 1;
+    DefaultBehavior = 3;
+    All = 4;
+}
+enum SwipeDirection
+{
+    Right = 1;
+    Left = 2;
+    Up = 4;
+    Down = 8;
+}
+message AccelerometerEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+
+    repeated double AccelerometerXStandardDeviation = 1 [packed=true];
+    repeated double AccelerometerXQuantile02 = 2 [packed=true];
+    repeated double AccelerometerXQuantile08 = 3 [packed=true];
+    repeated double AccelerometerXCorrelationWithLast4 = 4 [packed=true];
+    repeated double AccelerometerXCorrelationWithLast10 = 5 [packed=true];	
+    repeated double AcelerometerYStandardDeviation = 6 [packed=true];
+    repeated double AccelerometerYQuantile02 = 7 [packed=true];
+    repeated double AccelerometerYQuantile08 = 8 [packed=true];
+    repeated double AccelerometerYCorrelationWithLast4 = 9 [packed=true];
+    repeated double AccelerometerYCorrelationWithLast10 = 10 [packed=true];	
+    repeated double AccelerometerZStandardDeviation = 11 [packed=true];
+    repeated double AccelerometerZQuantile02 = 12 [packed=true];
+    repeated double AccelerometerZQuantile08 = 13 [packed=true];
+    repeated double AccelerometerZCorrelationWithLast4 = 14 [packed=true];
+    repeated double AccelerometerZCorrelationWithLast10 = 15 [packed=true];
+}
+message DeviceMotionEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated int32 eventType = 102 [packed=true];	
+    repeated double relativeTimeAccurate = 104 [packed=true];
+
+    repeated double Roll = 1 [packed=true];
+    repeated double Pitch = 2 [packed=true];
+    repeated double Yaw = 3 [packed=true];
+    repeated double XRotation = 4 [packed=true];
+    repeated double YRotation = 5 [packed=true];
+    repeated double ZRotation = 6 [packed=true];
+    repeated double XMagneticField = 7 [packed=true];
+    repeated double YMagneticField = 8 [packed=true];
+    repeated double ZMagneticField = 9 [packed=true];
+    enum MagneticFieldCalibrationAccuracy
+    {
+        Uncalibrated = 1;
+        Low = 2;
+        Medium = 3;
+        High = 4;
+    }
+    repeated MagneticFieldCalibrationAccuracy MagneticFieldAccuracy = 10;
+    repeated double XGravity = 11 [packed=true];
+    repeated double YGravity = 12 [packed=true];
+    repeated double ZGravity = 13 [packed=true];
+    repeated double XUserAcceleration = 14 [packed=true];
+    repeated double YUserAcceleration = 15 [packed=true];
+    repeated double ZUserAcceleration = 16 [packed=true];
+}
+message GyroEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+
+    repeated double GyroXStandardDeviation = 1 [packed=true];
+    repeated double GyroXQuantile02 = 2 [packed=true];
+    repeated double GyroXQuantile08 = 3 [packed=true];
+    repeated double GyroXCorrelationWithLast4 = 4 [packed=true];
+    repeated double GyroXCorrelationWithLast10 = 5 [packed=true];
+    repeated double GyroYStandardDeviation = 6 [packed=true];
+    repeated double GyroYQuantile02 = 7 [packed=true];
+    repeated double GyroYQuantile08 = 8 [packed=true];
+    repeated double GyroYCorrelationWithLast4 = 9 [packed=true];
+    repeated double GyroYCorrelationWithLast10 = 10 [packed=true];
+    repeated double GyroZStandardDeviation = 11 [packed=true];
+    repeated double GyroZQuantile02 = 12 [packed=true];
+    repeated double GyroZQuantile08 = 13 [packed=true];
+    repeated double GyroZCorrelationWithLast4 = 14 [packed=true];
+    repeated double GyroZCorrelationWithLast10 = 15 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth01 = 16 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth02 = 17 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth03 = 18 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth04 = 19 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth05 = 20 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth06 = 21 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth07 = 22 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth08 = 23 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth09 = 24 [packed=true];
+    repeated double GyroYFourierQuantileAvgEighth10 = 25 [packed=true];
+}
+enum RawTouchState
+{
+    RawTouchStateBegan = 1;
+    RawTouchStateMoved = 2;
+    RawTouchStateEnded = 3;
+    RawTouchStateCancelled = 4;
+}
+message RawTouchEvents {	
+    enum TouchEventType
+    {
+        touchstart = 0;
+        touchmove = 1;
+        touchend = 2;
+        touchcancel = 3;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated TouchEventType eventType = 102 [packed=true];	
+    repeated IsTrusted isTrusted = 103;
+
+    repeated double x = 2 [packed=true];
+    repeated double y = 3 [packed=true];
+    repeated int32 touchIndex = 4 [packed=true];
+    repeated sint32 elementHash = 5 [packed=true];
+    repeated float touchPressure = 6 [packed=true];
+    repeated float touchSize = 7 [packed=true];
+}
+message ElementValues {
+    repeated int32 charCodes = 1 [packed=true];
+}
+message TextChangedEvents {
+    enum KeyboardType
+    {
+        KeyboardTypeDefault = 1;
+        KeyboardTypeASCIICapable = 2;
+        KeyboardTypeNumbersAndPunctuation = 3;
+        KeyboardTypeURL = 4;
+        KeyboardTypeNumberPad = 5;
+        KeyboardTypePhonePad = 6;
+        KeyboardTypeNamePhonePad = 7;
+        KeyboardTypeEmailAddress = 8;
+        KeyboardTypeDecimalPad = 9;
+        KeyboardTypeTwitter = 10;
+    }
+    enum KeyboardLayout
+    {
+        Docked = 1;
+        UnDocked = 2;
+        Splitted = 3;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated int32 eventType = 102 [packed=true];
+
+    repeated sint32 elementHash = 1 [packed=true];
+    repeated string textFieldValue = 2;	
+    repeated RawTouchEvents touchEvents = 3;
+    repeated double keyboardPositionX = 4 [packed=true];
+    repeated double keyboardPositionY = 5 [packed=true];
+    repeated double keyboardWidth = 6 [packed=true];
+    repeated double keyboardHeight = 7 [packed=true];
+    repeated KeyboardType keyboardType = 8;
+    repeated KeyboardLayout keyboardLayout = 9;
+    repeated DeviceOrientation DeviceOrientation = 10;
+    repeated ElementValues elementValues = 11;
+}
+message GestureParam
+{
+    enum GestureParamType
+    {
+        GestureParamScale = 1;
+        GestureParamVelocity = 2;
+        GestureParamRotation = 3;
+        GestureParamDirection = 4;
+        GestureParamVelocityX = 5; 
+        GestureParamVelocityY = 6;
+        GestureParamDistanceX = 7; 
+        GestureParamDistanceY = 8;
+        GestureParamDuration = 9;
+    }
+
+    optional GestureParamType type = 1;
+    optional double value = 2;
+}
+
+message GestureParams{
+    repeated GestureParam array = 1;
+}
+
+message DoubleValues {
+    repeated double array = 1 [packed=true];
+}
+
+message TouchGestureEvents {
+    enum GestureType
+    {
+        GestureTypeTap = 1;
+        GestureTypePinch = 2;
+        GestureTypePan = 3;
+        GestureTypeSwipe = 4;
+        GestureTypeRotate = 5;
+        GestureTypeLongPress = 6;
+    }
+    enum GestureRecognizerState
+    {
+        UIGestureRecognizerStatePossible = 1;
+        UIGestureRecognizerStateBegan = 2;
+        UIGestureRecognizerStateChanged = 3;
+        UIGestureRecognizerStateEnded = 4;
+        UIGestureRecognizerStateCancelled = 5;
+        UIGestureRecognizerStateFailed = 6;
+    }
+
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated GestureType eventType = 102 [packed=true];
+
+    repeated GestureRecognizerState state = 1;
+    repeated DoubleValues x = 3 ;
+    repeated DoubleValues y = 4 ;
+    repeated GestureParams gestureParams = 5;
+}
+message RawAccelerometerEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated double relativeTimeAccurate = 104 [packed=true];
+
+    repeated float x = 1 [packed=true];
+    repeated float y = 2 [packed=true];
+    repeated float z = 3 [packed=true];
+}
+message RawDeviceOrientationEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated double relativeTimeAccurate = 104 [packed=true];
+
+    repeated float alpha = 1 [packed=true];
+    repeated float beta = 2 [packed=true];
+    repeated float gamma = 3 [packed=true];
+    repeated float x = 4 [packed=true];
+    repeated float y = 5 [packed=true];
+    repeated float z = 6 [packed=true];
+    repeated float theta = 7 [packed=true];
+}
+message RawGyroEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated double relativeTimeAccurate = 104 [packed=true];
+
+    repeated float x = 1 [packed=true];
+    repeated float y = 2 [packed=true];
+    repeated float z = 3 [packed=true];
+}
+message LogEvents {
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+
+    repeated string Message = 1;
+    repeated string LogLevel = 2;
+    repeated int32 Count = 3 [packed=true];
+}
+message ClipboardEvents{
+    enum ClipboardEventType
+    {
+        copy = 0;
+        paste = 1;
+        cut = 2;
+    }
+    repeated ClipboardEventType clipboardEventType = 1;
+    repeated uint32 eventSequence = 100 [packed=true];
+    repeated double relativeTime = 101 [packed=true];
+    repeated string copiedText = 2;
+    
+}
+message ScriptExecuteEvents {
+    enum ScriptExecuteEventType
+    {
+        before = 0;
+        after = 1;
+    }
+    repeated ScriptExecuteEventType scriptExecuteEventType = 1 ;
+    repeated string scriptId = 2;
+    repeated string namespaceURI = 3;
+    repeated string outerHTML = 4;
+    repeated string scriptSource = 5;
+    repeated string scriptType = 6;
+}
+message BrowserResourceTiming {
+    optional double connectEnd = 1;
+    optional double connectStart = 2;
+    optional double domainLookupEnd = 3;
+    optional double domainLookupStart = 4; 
+    optional double fetchStart = 5;
+    optional double redirectEnd = 6;
+    optional double redirectStart = 7;
+    optional double requestStart = 8;
+    optional double responseEnd = 9;
+    optional double responseStart = 10;
+    optional double secureConnectionStart = 11;
+}
+message BrowserPlugIn {
+    optional string Name = 1;
+    optional string FileName = 2;
+    optional string Description = 3;
+    optional string Version = 4;
+}
+message BrowserWorkerDurations {
+	optional double oneWorkerDuration = 1;
+	optional double twoWorkerDuration = 2;
+	optional double fourWorkerDuration = 3;
+}
+message BrowserNavigationProperties {
+    optional int32 redirectCount = 1;
+    enum NavigationType
+    {
+        Navigate = 0;
+        Reload = 1;
+        BackForward = 2;
+        Reserved = 255;
+    }
+    optional NavigationType type = 2 [default = Navigate];
+}
+message BrowserTiming {
+    optional double connectEnd = 1;
+    optional double connectStart = 2;
+    optional double domComplete = 3;
+    optional double domContentLoadedEventEnd = 4;
+    optional double domContentLoadedEventStart = 5;
+    optional double domInteractive = 6;
+    optional double domLoading = 7;
+    optional double domainLookupEnd = 8;
+    optional double domainLookupStart = 9; 
+    optional double fetchStart = 10;
+    optional double loadEventEnd = 11;
+    optional double loadEventStart = 12;
+    optional double navigationStart = 13;
+    optional double redirectEnd = 14;
+    optional double redirectStart = 15;
+    optional double requestStart = 16;
+    optional double responseEnd = 17;
+    optional double responseStart = 18;
+    optional double secureConnectionStart = 19;
+    optional double unloadEventEnd = 20;
+    optional double unloadEventStart = 21;
+}
+message BrowserProperties {
+    optional bool isActiveX = 1;
+    optional int32 documentMode = 2;
+    optional bool isWorker = 3;
+    optional bool isPerformance = 4;        
+    optional bool isFirstPaint = 5;         
+    optional bool isXDomainRequest = 6;     
+    optional bool isQueuerySelector = 7;    
+    optional bool isArrayBehave = 8;        
+    optional bool isMsIndexDB = 9;          
+    optional bool isMozIndexDB = 10;         
+    optional bool isMozProp = 11;            
+    optional bool isOperaObject = 12;        
+    optional bool isChromeObject = 13;       
+    optional bool isSafariHandler = 14;      
+    optional bool isBattery = 15;            
+    optional sint32 inputHeight = 16;
+}
+message ElementTypeCount {
+    required string elementType = 1;
+    required int32 count = 2;
+}
+message ScriptStructure {
+    required string src = 1;
+    required sint32 text = 2;
+}
+message NetworkInformationApi{
+    optional string NetworkType = 1;
+    optional string NetworkDownLinkMax = 2;
+}
+message BatteryInfo{
+    optional string IsCharging = 1;
+    optional string BatteryLevel = 2; 
+    optional string ChargingTime = 3;
+    optional string DischargingTime = 4;
+}
+message BrowserMetaData {
+    enum VMResult
+    {
+        UnknownError = 1;
+        Not_processed = 2;
+        NotVM = 3;
+        Vm_found = 4;
+        Not_processed_linking = 5;
+        Not_processed_compiler = 6;
+        WebGL_not_supported = 7;
+    }
+    repeated BrowserPlugIn Plugins = 1;
+    optional string ExtendedPlugins = 2;
+    optional string UserAgent = 3;
+    optional string Display = 4;
+    optional string Os = 5;
+    optional string MainLanguage = 6;
+    optional float ZoomLevel = 7;
+	optional sint32 Cores = 8;
+	optional BrowserWorkerDurations WorkerDurations = 9;
+    optional BrowserNavigationProperties Navigation = 10;
+    optional BrowserTiming Timing = 11;
+    optional BrowserProperties Properties = 12;
+    optional int32 HistoryLength = 13;
+    optional string Fonts = 14;
+    optional int32 ColorDepth = 15;
+    optional int32 DNT = 16;
+    repeated ElementTypeCount ElementTypeHistogram = 17;
+    repeated ScriptStructure Scripts = 18;
+    optional VMResult VirtualMachine =19;
+    repeated string LocalIP =20;
+    optional string SiteMetaData = 21;
+    optional int32 HardwareConcurrency = 22;
+    optional NetworkInformationApi NetworkInfoApi = 23;
+    repeated string Languages = 24;
+    optional BatteryInfo BatteryInformation = 25;
+    optional string HtmlData = 26;
+    optional string Canvas = 27;
+    optional string FontsString = 29;
+    optional bool isPrivateBrowsing = 30;
+    optional InputMechanismInfo InputMechanism = 31;
+    optional string GlobalIP = 32;
+    optional ResourceLoadTimes SlothResourceLoadTimes = 33;
+    optional ResourceLoadTimes SlothIncResourceLoadTimes = 34;
+    optional sint32 BrowsingHistory = 35;
+    optional string GraphicCard = 36;
+    optional string GraphicAngle = 37;
+    optional double slothIncLoadTime = 38;
+    optional string Platform = 39;
+}
+message ContextInformation {
+optional string Value = 1;
+}
+message InputMechanismInfo{
+    enum InputPointer
+    {
+        Fine = 1;
+        Coarse = 2;
+        InputPointerNone = 3;
+        InputPointerAny = 4;
+        InputPointerNotSupported = 5;
+    }
+    enum InputHover
+    {
+        Hover = 1;
+        OnDemand = 2;
+        InputHoverNone = 3;
+        InputHoverAny = 4;
+        InputHoverNotSupported = 5;
+    }
+    optional InputPointer PointerType = 1 [default = InputPointerNotSupported];
+    optional InputHover HoverType = 2 [default = InputHoverNotSupported];
+}
+message ResourceLoadTimes{
+    optional double totalDuration = 1;
+    optional double fetchStart = 2;
+    optional double connectStart = 3;
+    optional double requestStart = 4;
+    optional double responseEnd = 5;
+}
+message FpsEvents {
+    repeated uint32 eventSequence = 1 [packed=true];
+    repeated double frameTime = 2;
+}
+enum LogLevel {
+    Debug = 1;
+    Info = 2;
+    Warn = 3;
+    Error = 4;
+    Critical = 5;
+    Trace = 6;
+    Fatal = 7;
+    Off = 8;
+}
+message Log {
+    required string logger = 1;
+    required double timestamp = 2;
+    required LogLevel level = 3;
+    optional string url = 4;
+    required string message = 5;
+    optional string cid = 6;
+    optional string sid = 7;
+    optional string uid = 8;
+}
+message BaseRequest {
+    enum DeviceOrientationType
+    {
+        Normal = 1;
+        UpSideDown = 2;
+        Right = 3;
+        Left = 4;
+    }
+    optional string version = 1;
+    optional Elements elements = 2;
+    optional AbcEvents abcEvents = 3;
+    optional WindowEvents windowEvents = 4;
+    optional string MUID = 5;
+	repeated string MFP = 6;
+    optional string pngMuid = 7;
+    optional string hostname = 8;
+    repeated string ipAddresses = 9;
+    required uint32 requestId = 10;
+    required uint32 contextId = 11;
+    required string customerId = 12;
+    required string sessionId = 13;
+    required string application = 14;
+    optional sint32 timezone = 15;
+    optional double UnidentifiedStartTime = 16;
+    optional double responseTimeCurr = 17;
+    optional BrowserResourceTiming performanceResourceCurr = 18;
+    optional double responseTimeSouthAsia = 19;
+    optional BrowserResourceTiming performanceResourceSouthAsia = 20;
+    optional double responseTimeEastAsia = 21;
+    optional BrowserResourceTiming performanceResourceEastAsia = 22;
+    optional double cacheImageResponseTime = 23;
+    optional double dnsLookUpTime = 24;
+    optional double handShakeTime = 25;
+    optional double dataRttTime = 26;
+    optional BrowserMetaData browserMetaData = 27;
+    optional string Etag = 28;
+    optional float fpsAverage = 29;
+    optional float fpsStd = 30;
+    optional double clientStartTime = 31;
+    optional double clientLastBootTime = 32;	
+    required TerminalState state = 33 [default = Undefined];
+    repeated Log log = 34;
+    repeated string searchHistory = 35;
+    repeated string documentHistory = 36;
+    optional string url = 37;
+    optional RawTouchEvents rawTouchEvents = 38;
+	optional string linkId = 39;
+    optional DeviceOrientationType DeviceOrientation = 40 [default = Normal];
+    optional string connectionType = 41;
+    optional FormEvents formEvents = 42;
+    optional int32 deltaVersion = 43;
+    optional string customerSessionId = 44;
+    optional string extraSessionInfo  = 45;
+    optional ContextInformation contextInfo = 46;
+    optional uint32 groupId = 47;
+    optional ClipboardEvents clipboardEvents = 48;
+    optional string pid = 49;
+    optional ScriptExecuteEvents scriptExecuteEvents = 50;
+    optional string flashMuid = 51;
+    repeated string localIP = 52;
+    optional double firstRequestTime = 53;
+    optional double startCollectionTime = 54;
+    optional double currRequestTime = 55;
+    repeated string globalIP = 56;
+    optional FpsEvents fpsEvents = 57;
+    
+    enum Type
+    {
+        WebRequest = 1;
+        MobileBrowserRequest = 2;
+        MobileRequest = 3;
+    }
+    required Type type = 99;
+
+    optional WebRequest webRequest = 101;
+    optional MobileRequest mobileRequest = 102;
+    optional MobileBrowserRequest mobileBrowserRequest = 103;
+}
+message WebRequest {
+    optional MouseEvents mouseEvents = 1;
+    optional KeyEvents keyEvents = 2;
+    optional ElementEvents elementEvents = 3;
+}
+message GeoLocation {
+    required double longitude = 1;
+    required double latitude = 2;
+}
+message TraceRouteHost {
+    optional string HostName = 1;
+    optional string Ip = 2;
+    optional bool IsSuccessfull = 3;
+    optional double DurationMs = 4;
+}
+message SimInfo
+{
+    enum PhoneType
+    {
+        NoPhoneType = 1;
+        GSM = 2;
+        CDMA = 3;
+    }
+
+    repeated string allCellInfo = 1;
+    optional string deviceSoftwareVersion = 2;
+    optional string networkCountryIso = 3;
+    optional string networkOperator = 4;
+    optional string networkOperatorName = 5;
+    optional string simCountryIso = 6;
+    optional string simOperator = 7;
+    optional string simOperatorName = 8;
+    optional string deviceId = 9;
+    optional string simSerialNumber = 10;
+    optional string subscriberId = 11;
+    optional PhoneType phoneType = 12;
+    optional int32 simState = 13;
+}
+message MobileMetaData {
+    optional string deviceInfo = 1;
+    repeated string sensorTypes = 2;
+    repeated string wifiHistory = 3;
+    optional SimInfo simData = 4;
+    optional SoundData soundData = 5;
+    optional PackageInformation packageInformation = 6;
+    optional BluetoothData bluetoothData = 7;
+    optional SystemData systemData = 8;
+    optional TrafficStatsistics trafficStatsistics = 9;
+    optional WifiData wifiData = 10;
+    optional CallData callData = 11;
+    optional GsmData gsmData = 12;
+}
+message SoundData {
+    optional bool bluetoothA2dp = 1;
+    optional bool bluetoothScoAvailableOffCall = 2;
+    optional bool bluetoothScoOn = 3;
+    optional bool wiredHeadsetOn = 4;
+    optional int32 ringerMode = 5;
+}
+message PackageInformation {
+    optional string packageName = 1;
+    optional string dataDir = 2;
+    optional string publicSourceDir = 3;
+    optional string sourceDir = 4;
+    optional string nativeLibraryDir = 5;
+    optional int32 kernelUid = 6;
+    optional double firstInstallTime = 7;
+    optional double lastUpdateTime = 8;
+    optional int32 versionCode = 9;
+    optional string versionName = 10;
+}
+message BluetoothData {
+    repeated string bluetoothDeviceNames = 1;
+    optional string bluetoothName = 2;
+}
+message SystemData {
+    optional int32 dataRoaming = 1;
+    optional int32 installNonMarketApps = 2;
+    optional int32 lockPaternVisible = 3;
+    optional int32 lockPatternEnabled = 4;
+}
+message TrafficStatsistics {
+    optional int32 mobileTxBytes = 1;
+    optional int32 mobileRxBytes = 2;
+    optional int32 totalTxBytes = 3;
+    optional int32 totalRxBytes = 4;
+}
+message WifiData {
+    optional bool isUsingWifi = 1;
+    optional int32 ipFromWifi = 2;
+    optional int32 linkSpeed = 3;
+    optional string wifiCapabilities = 4;
+    optional int32 wifiFrequency = 5;
+    optional int32 wifiLevel = 6;
+    optional double wifiScanTimestamp = 7;
+}
+message GsmData {
+    optional int32 ipFromWifi = 1;
+    optional int32 linkSpeed = 2;
+    optional int32 wifiLevel = 3;
+}
+message CallData {
+    repeated Call callList = 1;
+}
+message Call {
+    optional string phoneNumber = 1;
+    optional int32 type = 2;
+    optional double date = 3;
+    optional int32 callDuration = 4;
+}
+enum DeviceOrientation
+{
+    Unknown = 1;
+    Portrait = 2;
+    PortraitUpsideDown = 3;
+    LandscapeLeft = 4;
+    LandscapeRight = 5;
+    FaceUp = 6;
+    FaceDown = 7;
+}
+message DeviceMetaData {
+    optional DeviceOrientation DeviceOrientation = 1 [default = Unknown];
+}
+message NumberChallengeEvents {
+    required string numberSnapshot = 1;
+}
+message MobileRequest {
+    optional TouchGestureEvents touchGestureEvents = 1;
+    optional GyroEvents gyroEvents = 2;
+    optional AccelerometerEvents accelerometerEvents = 3;
+    optional TextChangedEvents textChangedEvents = 5;
+    optional RawAccelerometerEvents rawAccelerometerEvents = 6;
+    optional RawDeviceOrientationEvents rawDeviceOrientationEvents = 7;
+    optional RawGyroEvents rawGyroEvents = 8;
+    optional ElementEvents elementEvents = 9;
+    optional NumberChallengeEvents numberChallengeEvents = 10;
+    optional GeoLocation location = 11;
+    optional int32 cellId = 12;
+    optional string BSSID = 13;
+    optional string ADID = 14;
+    optional bool hasProxy = 15;
+    repeated TraceRouteHost traces = 16;
+    optional string api = 17;
+    optional string osBuildNumber = 18;
+    optional string model = 19;
+    optional int32 totalRamMB = 20;
+    optional int32 freeStorageSizeMB = 21;
+    optional int32 totalStorageSizeMB = 22;
+    optional MobileMetaData mobileMetaData = 23;
+    optional DeviceMetaData deviceMetaData = 24;
+    optional string os = 25;
+    repeated string accounts = 26;
+    optional bool isRooted = 27;
+    optional string SSID  = 28;
+    optional string subModel  = 29;
+    optional string deviceLanguage  = 30;
+    optional MobileLocation locationFromGps  = 31;
+    optional MobileLocation locationFromNetwork  = 32;
+}
+message MobileLocation {
+    optional string provider = 1;
+    optional float accuracy = 2;
+    optional double altitude = 3;
+    optional float speed = 4;
+    optional double latitude = 5;
+    optional double longitude = 6;
+    optional double time = 7;
+}
+message MobileBrowserRequest {
+    optional TouchGestureEvents touchGestureEvents = 1;
+    optional GyroEvents gyroEvents = 2;
+    optional AccelerometerEvents accelerometerEvents = 3;
+    optional TextChangedEvents textChangedEvents = 5;
+    optional RawAccelerometerEvents rawAccelerometerEvents = 6;
+    optional RawDeviceOrientationEvents rawDeviceOrientationEvents = 7;
+    optional RawGyroEvents rawGyroEvents = 8;
+    optional ElementEvents elementEvents = 9;
+    optional NumberChallengeEvents numberChallengeEvents = 10;
+    optional GeoLocation location = 11;
+
+    optional DeviceMetaData deviceMetaData = 24;
+
+    optional KeyEvents keyEvents = 100;
+}
+enum TerminalState
+{
+    Undefined = 0;
+    Enabled = 1;
+    Disabled = 2;
+    Mute = 3;
+    Starting = 4;
+}
+message MobileConfiguration {
+  optional string allowedOs = 1;
+  optional int32 chromeMaxVersion = 2;
+  optional int32 defaultQueueSize = 3;
+  optional bool enableCustomerAPI = 4;
+  optional int64 featureConfiguration = 5;
+  optional int32 heartBeatRate = 6;
+  optional int32 maxVersion = 7;
+  optional int32 minHeight = 8;
+  optional int32 minWidth = 9;
+  optional int32 mozillaMacOsMaxVersion = 10;
+  optional int32 mozillaMaxVersion = 11;
+  optional int32 queueSizeForMobile = 12;
+  optional int32 safariMaxVersion = 13;
+  optional int32 sendQueueMaxSize = 14;
+  optional int32 sendRate = 15;
+  optional int32 sensorRate = 16;
+  optional int32 silenceTimeRate = 17;
+  optional bool stackTraceEnabled = 18;
+  optional string urlEastAsia = 19;
+  optional string urlSouthAsia = 20;
+  optional int32 maxMetaDataMessages = 22;
+  optional bool isSupported = 23;
+  optional bool isDelaySubmit = 24;
+}
+enum TerminalAction 
+{
+    NoAction = 1;
+    LockPC = 2;
+    SubmitAnalytics = 3;
+    SubmitLogs = 4;
+}
+message Response {
+    required bool success = 1;
+    required TerminalState nextState = 2 [default = Enabled];
+    optional int32 timeToWait = 3;	
+    optional LogLevel debugLevel = 4 [default = Error];
+    optional MobileConfiguration configuration = 5;	
+    optional AbcType abcToInitiate = 6 [default = NoAbc];
+    optional bool startAbcAutonomously = 7;
+    repeated AbcType allowedAbcTypes = 8;	
+    optional TerminalAction action = 9 [default = NoAction];
+}

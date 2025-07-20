@@ -1,0 +1,56 @@
+name: NPM Publish Only
+
+on:
+  workflow_call:
+    inputs:
+      short-version:
+        type: string
+        description: The Version we would like to publish.
+        required: true
+
+  workflow_dispatch: # Allows manual standalone runs from GitHub UI
+    inputs:
+      short-version:
+        type: string
+        description: The Version we would like to publish.
+        required: true
+
+env:
+  NODE_JS_VERSION: 20
+  PIPELINE_SCRIPTS_PATH: ./.github/scripts
+
+jobs:
+  publish-to-npm:
+    name: Publish to NPM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_JS_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install Dependencies
+        run: npm install
+      - name: Build NPM Package
+        run: npm run buildReleaseNpm
+      - name: Set Version Env Vars
+        run: source $PIPELINE_SCRIPTS_PATH/setVersionEnvVars.sh
+      - name: Create .npmrc file
+        run: |
+          cat <<EOF > npm-configs/.npmrc
+          @biocatch:registry=https://biocatchdev.jfrog.io/artifactory/api/npm/biocatch-js-sdk/
+          //biocatchdev.jfrog.io/artifactory/api/npm/biocatch-js-sdk/:_authToken=${{ secrets.CLIENT_TEAM_JFROG_ACCESS_TOKEN }}
+          //biocatchdev.jfrog.io/artifactory/api/npm/biocatch-js-sdk/:email=${{ secrets.CLIENT_TEAM_JFROG_USERNAME }}
+          //biocatchdev.jfrog.io/artifactory/api/npm/biocatch-js-sdk/:always-auth=true
+          EOF
+          echo "----- .npmrc content -----"
+          cat npm-configs/.npmrc
+      - name: Update NPM Package Version
+        run: |
+          cd npm-configs
+          npm version ${{ inputs.short-version }} --no-git-tag-version
+      - name: Publish to NPM
+        run: |
+          cd npm-configs
+          npm publish

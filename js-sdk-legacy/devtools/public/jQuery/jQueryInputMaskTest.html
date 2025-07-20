@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>jQuery Input Mask Test</title>
+</head>
+<body>
+<input id="test1" name="test1" title="test1 input mask"/>
+<button id="enableMask1" title="Enable Mask 1" onclick='enableMask("#test1", true);'>Enable Mask with input event</button>
+<br/>
+<input id="test2" name="test2" title="test2 input mask"/>
+<button id="enableMask2" title="Enable Mask 2" onclick='enableMask("#test2", false);'>Enable Mask without input event</button>
+<br/>
+<input id="test3" name="test3" title="test3 input mask"/>
+<button id="enableMask3" title="Enable Mask 3" onclick='enableMask("#test3", false);'>Enable Mask without input event 2</button>
+<br/>
+<meta name='cdConfLocation'
+      content='https://clientwup-dev.bc2.customers.biocatch.com/client/v3/web/wup?cid=OlbBioCatchDev'/>
+<meta name='my_csid' content='bob-csid'/>
+<script type="text/javascript" src="../customerJs/DefaultCustomerApi.js"></script>
+<script type="text/javascript" src="../customerJs/slothDebug_DevVersion.js"></script>
+<script>
+    document.getElementById('test1').addEventListener('input', () => { console.log('test1 input Bubble'); });
+    document.getElementById('test2').addEventListener('input', () => { console.log('test2 input Bubble'); });
+</script>
+<script type="text/javascript" src="jquery.js" charset="utf-8"></script>
+<script>
+    $('#test1').on('input', () => { console.log('jquery test1 input Bubble')});
+    $('#test2').on('input', () => { console.log('jquery test2 input Bubble')});
+</script>
+<script type="text/javascript" src="jquery.inputmask.bundle.js" charset="utf-8"></script>
+<script>
+    function enableMask(selector, inputEventOnly) {
+        console.log(navigator.userAgent);
+        $(selector).inputmask("currency", {
+            colorMask: true,
+            inputEventOnly: inputEventOnly
+        });
+    }
+</script>
+</body>
+</html>

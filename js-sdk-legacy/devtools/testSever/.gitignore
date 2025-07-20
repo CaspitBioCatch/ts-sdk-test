@@ -1,0 +1,33 @@
+# Ignore directories that would be build by gulp / npm install and tsd install !!!
+# --------------------------------------------------------------------------------
+/node_modules 
+/.idea/workspace.xml
+/.idea/watcherTasks.xml
+/.idea/dictionaries
+/build
+/typings
+
+# Ignore all *.js and *.map files created by webstorm typescript plugin. these 
+# files should be exlude because it will be created by gulp into build folder.
+# --------------------------------------------------------------------------------
+**/*.js
+**/*.map
+
+# Ignore all *.css files genereated by webstorm scss file watcher. these files
+# should be exlude because it will be created by gulp into the build folder.
+# --------------------------------------------------------------------------------
+/statics/scss/**/*.css
+/.sass-cache
+
+# Include those files
+# --------------------------------------------------------------------------------
+!/typings/analyst_station
+!/typings/tsd.d.ts
+!/typings/node
+!/typings/main.d.ts
+!/statics/js/*.js
+!/test/test.js
+!gulpfile.js
+!karma.conf.js
+!/statics/externals/**/*.*
+npm-debug.log

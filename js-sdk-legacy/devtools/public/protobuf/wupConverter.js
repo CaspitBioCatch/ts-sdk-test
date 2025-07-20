@@ -1,0 +1,160 @@
+"use strict";
+
+let srcWupElem = null;
+let destWupElem = null;
+
+window.onload = function () {
+    srcWupElem = document.getElementById('srcWupTA');
+    destWupElem = document.getElementById('destWupTA');
+
+};
+
+function convertOldEventsToNew(srcProp, newProp, contextId) {
+    let itemsPerProp = 0;
+    let itemsNum = 0;
+    let srcPropNames = [];
+    for (let prop in srcProp) {
+        if (srcProp.hasOwnProperty(prop) && srcProp[prop] !== undefined && Array.isArray(srcProp[prop])) {
+            let currPropArrLen = srcProp[prop].length;
+            if (itemsNum != 0 && itemsNum != currPropArrLen) {
+                // error in wup
+                console.error('Not all arrays equal in length');
+            }
+            itemsNum = Math.max(srcProp[prop].length, itemsNum);
+            srcPropNames[itemsPerProp] = prop;
+            itemsPerProp++;
+        }
+    }
+    console.log('There are ' + itemsPerProp + ' in each item and  items');
+    for (let i = 0; i < itemsNum; i++) {
+        newProp[i] = [ contextId ];
+        for (let j = 0; j < srcPropNames.length ; j++) {
+            newProp[i].push(srcProp[srcPropNames[j]][i]);
+        }
+    }
+}
+let arrProps = [ 'windowEvents', 'abcEvents', 'elements', 'mouseEvents', 'keyEvents',
+    'elementEvents', 'rawTouchEvents', 'formEvents', 'clipboardEvents', 'scriptExecuteEvents',
+    'fpsEvents' ];
+let eventsSet = new Set(arrProps);
+
+function objToArr(obj) {
+    if (obj === null) {
+        return null;
+    }
+    let arr = [];
+    for (let prop in obj) {
+        if (obj.hasOwnProperty(prop)) {
+            arr.push(obj[prop]);
+        }
+    }
+    return arr;
+}
+
+function convertArrOfObjs(srcArr, newArr) {
+    for (let i = 0, len = srcArr.length; i < len; i++) {
+        newArr.push(objToArr(srcArr[i]));
+    }
+}
+
+function convertBrowserMD(browserMD, newWup) {
+    function convertPlugins() {
+        let newPlugins = newWup['browserMD_Plugins'] = [];
+        let plugins = browserMD['Plugins'];
+        convertArrOfObjs(plugins, newPlugins);
+        delete browserMD['Plugins'];
+    }
+
+    function convertElementTypeHistogram() {
+        newWup['browserMD_ElementTypeHistogram'] = [];
+        convertArrOfObjs(browserMD['ElementTypeHistogram'] , newWup['browserMD_ElementTypeHistogram']);
+        delete browserMD['ElementTypeHistogram'];
+    }
+
+    function convertScripts() {
+        newWup['browserMD_Scripts'] = [];
+        convertArrOfObjs(browserMD['Scripts'] , newWup['browserMD_Scripts']);
+        delete browserMD['Scripts'];
+    }
+
+    convertPlugins();
+    convertElementTypeHistogram();
+    convertScripts();
+
+    for (let prop in browserMD) {
+        if (browserMD.hasOwnProperty(prop) && browserMD[prop] !== undefined ) {
+            if (typeof browserMD[prop] == 'object') {
+                newWup['bMD_' + prop] = objToArr(browserMD[prop]);
+            }
+            else if (typeof browserMD[prop] === 'boolean' || typeof browserMD[prop] === 'number' ||
+                typeof browserMD[prop] === 'string' || browserMD[prop] === null) {
+                newWup['bMD_' + prop] = browserMD[prop];
+            }
+            else {
+                console.error("Failed to convert browserMD prop: " + prop + ":" + browserMD[prop].toString());
+            }
+        }
+    }
+}
+
+let origContextId = null;
+
+function convertRecurs(srcWup, newWup){
+
+    console.log('contextId  = ' + origContextId  );
+    for (let prop in srcWup) {
+        if (srcWup.hasOwnProperty(prop)) {
+            if (eventsSet.has(prop)) {
+                if (srcWup[prop] != null) {
+                    newWup[prop] = [];
+                    convertOldEventsToNew(srcWup[prop], newWup[prop], origContextId);
+                }
+            }
+            else if (prop == "browserMetaData") {
+                if (srcWup[prop] === null) {
+                    continue;
+                }
+                convertBrowserMD(srcWup[prop], newWup);
+            }
+            else if (Array.isArray(srcWup[prop])) {
+                // this is an array property, change from
+                // "localIP" : ["192.168.1.167", "192.168.56.1", "192.168.99.1"] to
+                // ["localIP", "192.168.1.167", "192.168.56.1", "192.168.99.1"]
+                let newArr = [prop];
+                for (let i = 0, len = srcWup[prop].length; i < len; i++) {
+                    //convertRecurs(srcWup[prop], newArr);
+                    newArr.push(srcWup[prop][i]);
+                }
+                newWup.static_fields.push(newArr);
+            }
+            else if (typeof srcWup[prop] === 'boolean' || typeof srcWup[prop] === 'number' ||
+                typeof srcWup[prop] === 'string') {
+                // this is a simple property - add it to static
+                newWup.static_fields.push([prop, srcWup[prop]]);
+            }
+            else if (srcWup[prop] === null) {
+                continue;
+            }
+            else if (typeof srcWup[prop] === 'object') {
+                //newWup[prop] = [];
+                convertRecurs(srcWup[prop], newWup);
+            }
+            else {
+                console.error('No idea what this is: ' + prop + ':' + srcWup[prop] + ':' + typeof srcWup[prop]);
+            }
+        }
+    }
+}
+
+function convert() {
+    let srcWupStr = srcWupElem.value;
+    let srcWup = JSON.parse(srcWupStr);
+
+    let newWup = { static_fields:[] };
+    newWup['version'] = srcWup['version'];
+    origContextId = srcWup['contextId'];
+
+    convertRecurs(srcWup, newWup);
+
+    destWupElem.value = JSON.stringify(newWup);
+}

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forms examples</title>
+    <!-- 2.0 metatags -->
+    <meta name='cdConfLocation' content='https://clientwup-dev.bc2.customers.biocatch.com/client/v3/web/wup?cid=OlbBioCatchDev'></meta>
+    <input name="bccsid" id="bccsid" type="hidden" content="ssssss"/>
+
+    <script type="text/javascript" src="/customerJs/DefaultCustomerApi.js"></script>
+    <!--<script type="text/javascript" src="/customerJs/sloth2_0.js"></script>-->
+    <script type="text/javascript" src="customerJs/slothDebug_DevVersion.js"></script>
+    <!--<script type="text/javascript" src="/customerJs/slothDebug2_0.js"></script>-->
+    <!--<script type="text/javascript" src="/customerJs/slothIe82_0.js"></script>-->
+    <!--<script type="text/javascript" src="/customerJs/slothIe8Debug2_0.js"></script>-->
+    <script type="text/javascript" src="/lazyCustomerContext.js"></script>
+    <script type="text/javascript">
+        window.onload = function () {
+            document.addEventListener('submit', function (e) {
+                // do this so the page will not reload
+                console.log("parent submit");
+                e.preventDefault();
+            });
+        }
+        function onSubmitForm() {
+            document.getElementById("frmJs").submit();
+        }
+    </script>
+</head>
+<body>
+
+<form action="test.html" method="get">
+    <fieldset>
+        <legend>Personal information:</legend>
+        First name:<br>
+        <input type="text" name="firstname" value="Mickey"><br>
+        Last name:<br>
+        <input type="text" name="lastname" value="Mouse"><br><br>
+        <input type="submit" value="Submit">
+    </fieldset>
+</form>
+<br/>
+<h1>Form submitted with JS</h1>
+    <form id="frmJs" action="test.html" method="get">
+    <fieldset>
+        <legend>Personal information:</legend>
+        First name:<br>
+        <input type="text" name="firstname" value="Mickey"><br>
+        Last name:<br>
+        <input type="text" name="lastname" value="Mouse"><br><br>
+        <input type="button" id="submitBtn" onclick="onSubmitForm()" value="Submit">
+    </fieldset>
+</form>
+
+</body>
+</html>

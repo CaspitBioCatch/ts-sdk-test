@@ -1,0 +1,85 @@
+name: UPLOAD JS SDK ARTIFACTORY TO JFROG
+
+on:
+  repository_dispatch:
+    types: Build-js-sdk-version-to-triggered-github-event
+
+env:
+  ARTIFACTS_FOLDER: artifacts
+
+jobs:
+  jFrog_upload:
+    name: Run Scheduled jFrog upload
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+
+      - name: Create files for the Jenkins result
+        run: |
+          touch version.txt
+
+      - name: Send build version to triggered Event Data
+        run: |
+          declare -x VERSION=${{ github.event.client_payload.text }}
+          echo VERSION=$VERSION >> $GITHUB_ENV
+
+      - name: Print Git Env for check
+        run: |
+          echo "CURRENT_PROJECT_VERSION is ${{ env.VERSION }}"
+
+      - name: Grep Git Env for check
+        run: |
+          echo ${{ env.VERSION }} | grep -Eo '[0-9].[0-9]+.[0-9]' >> version.txt
+
+      - name: Insert res to github env
+        run: |
+          declare -x MAJOR_VERSION=$(cat version.txt)
+          echo MAJOR_VERSION=$MAJOR_VERSION >> $GITHUB_ENV
+
+      - name: Create Artifacts folders
+        run: |
+          mkdir -p $GITHUB_WORKSPACE/${{ env.ARTIFACTS_FOLDER }}
+          mkdir -p $GITHUB_WORKSPACE/${{ env.ARTIFACTS_FOLDER }}/library
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Download from s3
+        run: |
+          echo "Download cp to artifacts from folder S3"
+          aws s3 cp s3://rnd-bcdn/releases/js/${{ env.VERSION }}/ $GITHUB_WORKSPACE/artifacts/library --recursive
+
+      - name: move to root
+        run: |
+          echo "------- move to root -------"
+          mv $GITHUB_WORKSPACE/artifacts/library/sloth${{ env.VERSION }}.*.min.js ./
+
+      - name: rename file
+        run: |
+          mv ./sloth${{ env.VERSION }}.*.min.js ./${{ env.MAJOR_VERSION }}.js 
+
+      - name: Create one taz gz folder
+        run: |
+          echo "------- run tar command -------"
+          tar -czf ./${{ env.MAJOR_VERSION }}.tar.gz  ./${{ env.MAJOR_VERSION }}.js 
+
+
+      - uses: jfrog/setup-jfrog-cli@v1
+        env:
+          JF_ARTIFACTORY_1: ${{ secrets.CLIENT_TEAM_JFROG_ARTIFACTORY_SECRET }}
+
+      - name: Use CLIENT_TEAM_JFROG_ARTIFACTORY
+        # Set the Artifactory server to use by providing the server ID (configured by the 'jfrog rt c' command).
+        run: jfrog rt use jfrog-clientteam
+
+      - name: publish to Jfrog
+        run: |
+            curl -u$jfrog_user:$jfrog_password -T ./${{ env.MAJOR_VERSION }}.tar.gz "https://biocatchdev.jfrog.io/artifactory/servicedeliverysdk/js/${{ env.MAJOR_VERSION }}.tar.gz"
+        env:
+          jfrog_user: ${{ secrets.CLIENT_TEAM_JFROG_USERNAME }}
+          jfrog_password: ${{ secrets.CLIENT_TEAM_JFROG_PASSWORD }}

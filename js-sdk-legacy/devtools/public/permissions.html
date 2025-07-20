@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<button id="media" onclick="askForMedia()">Ask media permission</button>
+<button id="geo" onclick="askForGeo()">Ask geolocation permission</button>
+<button id="storage" onclick="askForStorage()">Ask persistence storage</button>
+<button id="checkPer" onclick="checkPermissions()">Check permissions</button>
+<button id="clear" onclick="clearResults()">clear</button>
+<div id="result"></div>
+<script>
+
+    "use strict";
+
+    /**
+     * geolocation - FF, Chrome
+     * midi - Chrome
+     * push - FF
+     * persistent-storage - FF, for Chrome we use the navigator.storage.persisted() way (which also works in FF)
+     * camera - None
+     * microphone - None
+     */
+    function checkPermissions() {
+        let permisions = ['geolocation', 'midi', 'notifications', 'push', 'persistent-storage', 'camera',  'microphone'];
+        for (let per of permisions) {
+            if (navigator.permissions && navigator.permissions.query) {
+                navigator.permissions.query({name: per})
+                    .then(function(result) {
+                        let msg = `<b>${per}:</b>   result.state:   <b>${result.state}</b>`;
+                        console.log(msg);
+                        toScreen(msg);
+                    })
+                    .catch((ex) => {
+                        toScreen(ex);
+                    });
+            }
+        }
+
+        if (navigator.storage && navigator.storage.persist)
+            navigator.storage.persisted().then(persistent=>{
+                if (persistent) {
+                    let msg = `<b>navigator.storage.persisted(): ${persistent}</b>`;
+                    console.log(msg);
+                    toScreen(msg);
+                }
+                else{
+                    console.log("Storage may be cleared by the UA under storage pressure.");
+                    let msg = `<b>navigator.storage.persisted(): ${persistent}</b>`;
+                    console.log(msg);
+                    toScreen(msg);
+                }
+            });
+
+        listDevices();
+
+    }
+
+    function askForGeo() {
+        navigator.geolocation.getCurrentPosition(function(position) {
+           console.log(position.coords.latitude, position.coords.longitude);
+        });
+    }
+
+
+    function askForMedia() {
+        var constraints = { audio: true, video: true};
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(function(mediaStream) {
+                console.log(`mediaStream.id=${mediaStream.id}`);
+            })
+            .catch(function(err) { console.log(err.name + ": " + err.message); });
+    }
+
+    function askForStorage() {
+        if (navigator.storage && navigator.storage.persist)
+            navigator.storage.persist().then(granted => {
+                if (granted)
+                    console.log("Storage will not be cleared except by explicit user action");
+                else
+                    console.log("Storage may be cleared by the UA under storage pressure.");
+            });
+    }
+
+    function listDevices() {
+        navigator.mediaDevices.enumerateDevices()
+            .then(function(devices) {
+                devices.forEach(function(device) {
+                    let msg = `kind: ${device.kind}; label: ${device.label}; id: ${device.deviceId}`;
+                    console.log(msg);
+                    toScreen(msg);
+                });
+            })
+            .catch(function(err) {
+                console.log(err.name + ": " + err.message);
+            });
+
+    }
+
+
+    function toScreen(msg) {
+        document.getElementById('result').innerHTML += `</br>${msg}`
+    }
+
+    function clearResults(){
+        document.getElementById('result').innerHTML = ``;
+    }
+
+    checkPermissions();
+</script>
+</body>
+</html>

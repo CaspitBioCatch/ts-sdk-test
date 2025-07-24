@@ -5,7 +5,7 @@ index.html
 
 # compiler
 tsconfig.json
-webpack.config.js
+webpack.devserver.config.js
 postcss.config.js
 
 # files

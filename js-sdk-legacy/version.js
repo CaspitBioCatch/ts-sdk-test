@@ -1,9 +1,16 @@
 const _ = require('lodash');
 const { GitRevisionPlugin } = require('git-revision-webpack-plugin');
 
-const gitRevisionPlugin = new GitRevisionPlugin({
-    versionCommand: 'rev-parse --short HEAD' // Customize the command to produce short git version tags
-});
+// Try to get git version, fallback to 'nogit' if not available
+let gitVersion = 'nogit';
+try {
+    const gitRevisionPlugin = new GitRevisionPlugin({
+        versionCommand: 'rev-parse --short HEAD' // Customize the command to produce short git version tags
+    });
+    gitVersion = gitRevisionPlugin.version();
+} catch (error) {
+    console.warn('Git not available, using fallback version');
+}
 
 const release = {
     majorVersion: process.env.SHORT_VERSION || 'dev-version',
@@ -18,7 +25,7 @@ class Version {
         this._formattedString = compiledVersion({
             'majorVersion': release.majorVersion,
             'buildNumber': release.buildNumber,
-            'version': gitRevisionPlugin.version(),
+            'version': gitVersion,
         });
     }
 

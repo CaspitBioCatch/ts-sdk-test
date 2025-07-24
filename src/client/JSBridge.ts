@@ -10,7 +10,8 @@ import {
     IClient,
     IDynamicCdApiLoader,
     IConfigMapper,
-    IServerUrlResolver
+    IServerUrlResolver,
+    StartupConfigurations
 } from '../types/interfaces';
 
 /**
@@ -72,13 +73,117 @@ class DynamicCdApiLoaderAdapter implements IDynamicCdApiLoader {
 }
 
 /**
+ * Adapter for JavaScript StartupConfigurations to match TypeScript interface
+ */
+class StartupConfigurationsAdapter implements StartupConfigurations {
+    constructor(private jsConfig: any) { }
+
+    getWupServerURL(): string {
+        return this.jsConfig.getWupServerURL();
+    }
+
+    getLogServerURL(): string | null {
+        return this.jsConfig.getLogServerURL();
+    }
+
+    getEnableFramesProcessing(): boolean {
+        return this.jsConfig.getEnableFramesProcessing();
+    }
+
+    getEnableCustomElementsProcessing(): boolean {
+        return this.jsConfig.getEnableCustomElementsProcessing();
+    }
+
+    getEnableSameSiteNoneAndSecureCookies(): boolean {
+        return this.jsConfig.getEnableSameSiteNoneAndSecureCookies();
+    }
+
+    getUseUrlWorker(): boolean {
+        return this.jsConfig.getUseUrlWorker();
+    }
+
+    getWorkerUrl(): string | null {
+        return this.jsConfig.getWorkerUrl();
+    }
+
+    getIsWupServerURLProxy(): boolean {
+        return this.jsConfig.getIsWupServerURLProxy();
+    }
+
+    getClientSettings(): any {
+        return this.jsConfig.getClientSettings();
+    }
+
+    getCollectionSettings(): any {
+        return this.jsConfig.getCollectionSettings();
+    }
+
+    getEnableStartupCustomerSessionId(): boolean {
+        return this.jsConfig.getEnableStartupCustomerSessionId();
+    }
+
+    getMutationMaxChunkSize(): number {
+        return this.jsConfig.getMutationMaxChunkSize();
+    }
+
+    getMutationChunkDelayMs(): number {
+        return this.jsConfig.getMutationChunkDelayMs();
+    }
+
+    getPasswordIdMaskingList(): string[] {
+        return this.jsConfig.getPasswordIdMaskingList() || [];
+    }
+
+    getEnableUnmaskedValues(): boolean {
+        return this.jsConfig.getEnableUnmaskedValues ? this.jsConfig.getEnableUnmaskedValues() : false;
+    }
+
+    getAllowedUnmaskedValuesList(): string[] {
+        return this.jsConfig.getAllowedUnmaskedValuesList ? this.jsConfig.getAllowedUnmaskedValuesList() : [];
+    }
+
+    getEnableCoordinatesMasking(): boolean {
+        return this.jsConfig.getEnableCoordinatesMasking ? this.jsConfig.getEnableCoordinatesMasking() : false;
+    }
+
+    getIsFlutterApp(): boolean {
+        return this.jsConfig.getIsFlutterApp ? this.jsConfig.getIsFlutterApp() : false;
+    }
+
+    getEnableMinifiedWupUri(): boolean {
+        return this.jsConfig.isMinifiedWupUriEnabled ? this.jsConfig.isMinifiedWupUriEnabled() : true;
+    }
+
+    getEnableMinifiedLogUri(): boolean {
+        return this.jsConfig.isMinifiedLogUriEnabled ? this.jsConfig.isMinifiedLogUriEnabled() : false;
+    }
+
+    getMaxShadowDepth(): number {
+        return this.jsConfig.getMaxShadowDepth ? this.jsConfig.getMaxShadowDepth() : 0;
+    }
+
+    getEnableGraphCard(): boolean {
+        return this.jsConfig.getEnableGraphCard ? this.jsConfig.getEnableGraphCard() : false;
+    }
+
+    getEnableBrowserDisplayDetect(): boolean {
+        return this.jsConfig.getEnableBrowserDisplayDetect ? this.jsConfig.getEnableBrowserDisplayDetect() : false;
+    }
+
+    getEnableMathDetect(): boolean {
+        return this.jsConfig.getEnableMathDetect ? this.jsConfig.getEnableMathDetect() : false;
+    }
+}
+
+/**
  * Wrapper to adapt existing JavaScript ConfigMapper to TypeScript interface
  */
 class ConfigMapperAdapter implements IConfigMapper {
     constructor(private jsMapper: any) { }
 
-    mapStartupConfigurations(wupServerUrl: string, configurations: any): any {
-        return this.jsMapper.mapStartupConfigurations(wupServerUrl, configurations);
+    mapStartupConfigurations(wupServerUrl: string, configurations: any): StartupConfigurations {
+        const jsConfig = this.jsMapper.mapStartupConfigurations(wupServerUrl, configurations);
+        return new StartupConfigurationsAdapter(jsConfig);
     }
 }
 

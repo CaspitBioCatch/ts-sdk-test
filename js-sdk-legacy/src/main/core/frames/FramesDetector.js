@@ -67,7 +67,7 @@ export default class FramesDetector {
             return;
         }
 
-        const elementsMutationObserver = new this._elementsMutationObserverFactory.create(window, self.MutationObserver, this._configurationRepository);
+        const elementsMutationObserver = this._elementsMutationObserverFactory.create(window, self.MutationObserver, this._configurationRepository);
         elementsMutationObserver.observe(window.document);
         elementsMutationObserver.nodeAdded.subscribe(this._processAddedNode.bind(this));
         elementsMutationObserver.nodeRemoved.subscribe(this._processRemovedNode.bind(this));

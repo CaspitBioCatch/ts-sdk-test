@@ -1,22 +1,27 @@
-// Main client export
+// Auto-initialization entry point - exactly matching js-sdk-legacy main.js
+import { DynamicCdApiLoader } from '../js-sdk-legacy/src/main/core/DynamicCdApiLoader';
+import { ConfigMapper } from '../js-sdk-legacy/src/main/core/ConfigMapper';
+import { ServerUrlResolver } from '../js-sdk-legacy/src/main/core/ServerUrlResolver';
+import Client from '../js-sdk-legacy/src/main/Client';
+import { createBioCatchClientFromJS } from './client/JSBridge';
+
 export { BioCatchClient } from './client/BioCatchClient';
 
-// Migration utilities for gradual migration from JS to TS
-export { BioCatchClientMigrationBridge, createBioCatchClient } from './client/BioCatchClientMigrationBridge';
+export function initializeBioCatchClient() {
+  console.log("🚀 BioCatch SDK - initializeBioCatchClient called");
+  // BioCatchClient constructor will auto-start the SDK if external cdApi is provided.
+  // Otherwise - will attach a 'bcTracker' member object from type BioCatchClient to the window which can be used for "manual-start".
+  const client = createBioCatchClientFromJS(
+    new Client(),
+    new DynamicCdApiLoader(),
+    new ConfigMapper(),
+    new ServerUrlResolver()
+  );
+  console.log("🚀 BioCatch SDK - BioCatch client created:", client);
+  return client;
+}
 
-// Type exports
-export { BCProtocolType } from './types/BCProtocolType';
-export type { BCProtocolTypeValue } from './types/BCProtocolType';
-export type {
-    SDKConfiguration,
-    StartupConfigurations,
-    IClient,
-    IDynamicCdApiLoader,
-    IConfigMapper,
-    IServerUrlResolver,
-    IBioCatchClientProxy,
-    BioCatchClientDependencies
-} from './types/interfaces';
-
-// Utility exports
-export { SupportedBrowserChecker } from './client/SupportedBrowserChecker';
+// Immediately call initialization - matching legacy pattern exactly
+console.log("🚀 BioCatch SDK - Starting auto-initialization...");
+initializeBioCatchClient();
+console.log("🚀 BioCatch SDK - Auto-initialization completed");

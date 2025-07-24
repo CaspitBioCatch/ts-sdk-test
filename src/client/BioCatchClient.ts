@@ -41,7 +41,7 @@ export class BioCatchClient {
         configMapper: IConfigMapper,
         serverUrlResolver: IServerUrlResolver,
         remoteConfigurationLoadedCallback?: () => void
-    );
+    )
     constructor(
         clientOrDependencies: IClient | BioCatchClientDependencies,
         dynamicCdApiLoader?: IDynamicCdApiLoader,
@@ -66,7 +66,7 @@ export class BioCatchClient {
             this.serverUrlResolver = serverUrlResolver;
             this.remoteConfigurationLoadedCallback = remoteConfigurationLoadedCallback;
         }
-
+        console.log("initalizeBioCatchClient");
         this.initialize();
     }
 

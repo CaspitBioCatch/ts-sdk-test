@@ -1,5 +1,3 @@
-import InlineWorker from 'worker-loader?inline=no-fallback&filename=worker.js!../../worker/worker.js';
-
 /**
  * Factory for creating a worker port. Factory create which wraps a dedicated inlined worker or a worker from url according to useUrlWorker configuration.
  */
@@ -18,7 +16,8 @@ export default class WorkerWrapperFactory {
     }
 
     _createInlineWorker() {
-        const nativeWorker = new InlineWorker();
+        console.log(`Creating worker ${this._workerUrl}`);
+        const nativeWorker = new Worker(this._workerUrl);
         Log.info('Created a dedicated worker.');
         return new WorkerWrapper(nativeWorker);
     }

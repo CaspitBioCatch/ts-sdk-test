@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta charset="UTF-8"/>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+    <meta http-equiv="Pragma" content="no-cache"/>
+    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Content-Security-Policy"
+          content="script-src 'self' 'unsafe-inline' 'unsafe-eval' https://code.jquery.com https://rawgit.com https://cdn.jsdelivr.net; worker-src blob: 'self' https://localhost:9002;">
+
+    <script>
+        document.cookie = "bcCsid=cookieValue";
+    </script>
+
+    <!-- BioCatch SDK metatags -->
+    <meta name='bcscriptlocation' content='https://localhost:9002/'/>
+    <meta name='bcsid' content='devTeamTest' />
+    <input name="bcsid" id="bcsid" type="hidden" content="ssssss"/>
+    <meta name='bcuid' content='devTeamTestUid' />
+    <meta name='bcacid' content='devTeamTestAccountId' />
+    <meta name='cdConfLocation'
+          content='https://wup-dtrackers.bc2.customers.biocatch.com/client/v3.1/web/wup?cid=dtrackers'/>
+    <title>BioCatch TypeScript SDK Test</title>
+    <meta name="cdWorkerUrl" content="customerJs/worker.js" />
+    <script type="text/javascript" src="customerJs/DefaultCustomerApi.js"></script>
+    <script type="text/javascript" src="customerJs/main.js"></script>
+    <script>
+        function publishCsid(length) {
+            const csid = generateRandomAlphanumeric(length);
+            if (window.cdApi && window.cdApi.setCustomerSessionId) {
+                window.cdApi.setCustomerSessionId(csid);
+            }
+        }
+        
+        function generateRandomAlphanumeric(length) {
+            let result = '';
+            while (result.length < length) {
+                result += Math.random().toString(36).substring(2);
+            }
+            return result.substring(0, length).toUpperCase();
+        }
+
+        function callFlushApi() {
+            if (window.cdApi && window.cdApi.client && window.cdApi.client.flush) {
+                window.cdApi.client.flush();
+            }
+        }
+
+        function callResetSessionApi() {
+            if (window.cdApi && window.cdApi.startNewSession) {
+                window.cdApi.startNewSession();
+            }
+        }
+
+        function setCoordinatesMasking(isEnable) {
+            if (window.cdApi && window.cdApi.client && window.cdApi.client.setCoordinatesMasking) {
+                window.cdApi.client.setCoordinatesMasking(isEnable);
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>BioCatch TypeScript SDK Test</h1>
+    
+    <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h2>BioCatch SDK Controls</h2>
+        
+        <div style="margin: 10px 0;">
+            <button onclick="publishCsid(10)">Generate CSID (10 chars)</button>
+            <button onclick="callFlushApi()">Flush</button>
+            <button onclick="callResetSessionApi()">Reset Session</button>
+        </div>
+        
+        <div style="margin: 10px 0;">
+            <button onclick="setCoordinatesMasking(true)">Enable Coordinates Masking</button>
+            <button onclick="setCoordinatesMasking(false)">Disable Coordinates Masking</button>
+        </div>
+        
+        <div style="margin: 10px 0;">
+            <label>CSID Length:</label>
+            <input type="number" id="csidLength" value="10" min="1" max="50">
+            <button onclick="publishCsid(document.getElementById('csidLength').value)">Generate Custom CSID</button>
+        </div>
+    </div>
+
+    <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h2>Test Form Elements</h2>
+        
+        <form>
+            <div style="margin: 10px 0;">
+                <label>Text Input:</label>
+                <input type="text" placeholder="Type here to test text tracking" style="width: 300px;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>Password Input:</label>
+                <input type="password" placeholder="Password field" style="width: 300px;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>Email Input:</label>
+                <input type="email" placeholder="email@example.com" style="width: 300px;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>Number Input:</label>
+                <input type="number" placeholder="123" style="width: 300px;">
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>Textarea:</label><br>
+                <textarea placeholder="Multi-line text area" rows="4" cols="40"></textarea>
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>Select Dropdown:</label>
+                <select style="width: 200px;">
+                    <option value="">Choose an option</option>
+                    <option value="option1">Option 1</option>
+                    <option value="option2">Option 2</option>
+                    <option value="option3">Option 3</option>
+                </select>
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>
+                    <input type="checkbox"> Checkbox
+                </label>
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <label>
+                    <input type="radio" name="radio-group" value="radio1"> Radio 1
+                </label>
+                <label>
+                    <input type="radio" name="radio-group" value="radio2"> Radio 2
+                </label>
+            </div>
+            
+            <div style="margin: 10px 0;">
+                <button type="button">Test Button</button>
+                <button type="submit">Submit Button</button>
+            </div>
+        </form>
+    </div>
+
+    <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h2>Mouse & Touch Test Area</h2>
+        <div id="mouseTestArea" style="width: 400px; height: 200px; border: 2px dashed #999; background: #f5f5f5; position: relative;">
+            <p style="text-align: center; margin-top: 80px;">Move mouse here, click, drag</p>
+        </div>
+    </div>
+
+    <div style="margin: 20px; padding: 20px; border: 1px solid #ccc;">
+        <h2>SDK Status</h2>
+        <div id="sdkStatus">Loading...</div>
+    </div>
+
+    <script>
+        // Check if SDK is loaded
+        window.addEventListener('load', function() {
+            const statusDiv = document.getElementById('sdkStatus');
+            let status = '';
+            
+            if (window.cdApi) {
+                status += '✅ DefaultCustomerApi loaded<br>';
+            } else {
+                status += '❌ DefaultCustomerApi not detected<br>';
+            }
+            
+            if (window.BioCatchSDK) {
+                status += '✅ BioCatch TypeScript SDK loaded';
+                statusDiv.style.color = 'green';
+            } else {
+                status += '❌ BioCatch TypeScript SDK not detected';
+                statusDiv.style.color = window.cdApi ? 'orange' : 'red';
+            }
+            
+            statusDiv.innerHTML = status;
+        });
+
+        // Add some mouse event logging
+        const mouseArea = document.getElementById('mouseTestArea');
+        mouseArea.addEventListener('mousemove', function(e) {
+            const rect = e.target.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            mouseArea.innerHTML = `<p>Mouse: (${Math.round(x)}, ${Math.round(y)})</p>`;
+        });
+    </script>
+</body>
+</html>

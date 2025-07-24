@@ -1,22 +1,41 @@
 {
   "name": "ts-sdk-test",
   "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/simple-index.js",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "webpack:build": "webpack --mode=production",
+    "webpack:dev": "webpack --mode=development",
+    "devserver": "webpack serve --config=webpack.devserver.config.js --mode=development --https",
+    "capture-console": "node capture-console.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "crypto-js": "^4.2.0",
+    "fs-extra": "^11.3.0",
     "typescript": "^5.0.2"
   },
   "devDependencies": {
-    "@types/node": "^20.19.9"
+    "@babel/core": "^7.18.9",
+    "@babel/eslint-parser": "^7.18.9",
+    "@babel/preset-env": "^7.18.9",
+    "@types/node": "^20.19.9",
+    "babel-loader": "^8.2.5",
+    "babel-plugin-istanbul": "^7.0.0",
+    "bluebird": "^3.7.2",
+    "eslint": "^9.10.0",
+    "eslint-webpack-plugin": "^4.2.0",
+    "html-webpack-plugin": "^5.5.0",
+    "puppeteer": "^24.15.0",
+    "ts-loader": "^9.5.1",
+    "webpack": "^5.90.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.9.3",
+    "worker-loader": "^3.0.8"
   }
 }

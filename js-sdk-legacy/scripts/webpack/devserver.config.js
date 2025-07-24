@@ -87,7 +87,7 @@ const webpackConfig = {
             cert: fs.readFileSync(path.resolve(projectRootDir, "devtools/certificates") + "/cert.pem"),
         },
         open: 'test.html',
-        port: 9000,
+        port: 9001,
         static: {
             directory: path.resolve(projectRootDir, 'devtools/public'),
         },

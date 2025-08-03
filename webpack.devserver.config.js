@@ -10,17 +10,6 @@ const bb = require("bluebird");
 
 const projectRootDir = path.resolve(__dirname, './');
 
-function replaceFileContent(src, search, replace) {
-    if (!fs.existsSync(src)) {
-        throw src + " File not found";
-    }
-    let file_content = fs.readFileSync(src, 'utf8');
-    const final_content = file_content.replace(search, replace);
-    return fs.writeFile(src, final_content, (err) => {
-        if (err) throw err;
-    });
-}
-
 const copyFiles = {
     // Files that are served by the Webpack Dev Server.
     devserver: [
@@ -79,7 +68,7 @@ const webpackConfig = {
                     (stats, callback) => {
                         bb.mapSeries(
                             copyFiles.devserver,
-                            function (fileObj, index, length) {
+                            function (fileObj) {
                                 return fs_extra.copy(fileObj.source, fileObj.destination).then(() => {
                                     return fileObj;
                                 }).catch((err) => {

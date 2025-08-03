@@ -1,14 +1,5 @@
-/**
- * We use the following plugins:
- * https://github.com/babel/babel-loader - Support the import/export of ES6 modules
- * https://babeljs.io/docs/en/babel-plugin-transform-class-properties/ - allow static and arrow functions
- * to be created as class properties
- * https://www.npmjs.com/package/git-revision-webpack-plugin - to produce short git version tags
- */
-
 const path = require('path');
 
-// Bluebirdjs has support for each
 const { merge } = require('webpack-merge');
 const eslintConfig = require('./scripts/webpack/eslint.loader.config.js');
 const babelConfig = require('./scripts/webpack/babel.loader.config.js');
@@ -23,7 +14,7 @@ const webpackConfig = merge(eslintConfig, babelConfig, {
         worker: './js-sdk-legacy/src/worker/worker.js'
     },
     output: {
-        filename: (chunkData) => {
+        filename: () => {
             return '[name].debug.bundle.js';
         },
         path: path.resolve(__dirname, 'tempClasses'),

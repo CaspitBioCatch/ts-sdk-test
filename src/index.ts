@@ -6,6 +6,8 @@ import Client from '../js-sdk-legacy/src/main/Client';
 import { createBioCatchClientFromJS } from './client/JSBridge';
 
 export { BioCatchClient } from './client/BioCatchClient';
+export { BioCatchClientMigrationBridge } from './client/BioCatchClientMigrationBridge';
+export { BCProtocolType } from './types/BCProtocolType';
 
 export function initializeBioCatchClient() {
   console.log("🚀 BioCatch SDK - initializeBioCatchClient called");

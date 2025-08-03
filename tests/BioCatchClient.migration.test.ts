@@ -1,8 +1,8 @@
 /**
- * Simple verification script for BioCatchClient TypeScript migration
- * Run this with: npx ts-node tests/BioCatchClient.migration.test.ts
+ * Vitest tests for BioCatchClient TypeScript migration
  */
 
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
     BioCatchClient,
     BioCatchClientMigrationBridge,
@@ -76,132 +76,114 @@ const createMockJSDependencies = () => {
     };
 };
 
-function runMigrationTests() {
-    console.log('🚀 Running BioCatchClient TypeScript Migration Verification\n');
+describe('BioCatchClient TypeScript Migration', () => {
+    let mockDeps: ReturnType<typeof createMockJSDependencies>;
 
-    try {
-        // Test 1: Migration Bridge
-        console.log('📋 Test 1: Migration Bridge Creation');
-        const mockDeps = createMockJSDependencies();
+    beforeEach(() => {
+        mockDeps = createMockJSDependencies();
+        // Reset global window for each test
+        vi.stubGlobal('window', {});
+    });
 
-        const tsClient = BioCatchClientMigrationBridge.createFromJSDependencies(
-            mockDeps.client,
-            mockDeps.dynamicCdApiLoader,
-            mockDeps.configMapper,
-            mockDeps.serverUrlResolver
-        );
+    describe('Migration Bridge', () => {
+        it('should create TypeScript client from JavaScript dependencies', () => {
+            const tsClient = BioCatchClientMigrationBridge.createFromJSDependencies(
+                mockDeps.client,
+                mockDeps.dynamicCdApiLoader,
+                mockDeps.configMapper,
+                mockDeps.serverUrlResolver
+            );
 
-        if (tsClient instanceof BioCatchClient) {
-            console.log('✅ Successfully created TypeScript client from JavaScript dependencies');
-        } else {
-            throw new Error('Failed to create TypeScript client');
-        }
+            expect(tsClient).toBeInstanceOf(BioCatchClient);
+        });
+    });
 
-        // Test 2: Constructor Patterns
-        console.log('\n📋 Test 2: Constructor Patterns');
+    describe('Constructor Patterns', () => {
+        it('should work with dependencies object constructor', () => {
+            const clientWithDepsObject = new BioCatchClient({
+                client: mockDeps.client as any,
+                dynamicCdApiLoader: mockDeps.dynamicCdApiLoader as any,
+                configMapper: mockDeps.configMapper as any,
+                serverUrlResolver: mockDeps.serverUrlResolver as any
+            });
 
-        // Dependencies object constructor
-        const clientWithDepsObject = new BioCatchClient({
-            client: mockDeps.client as any,
-            dynamicCdApiLoader: mockDeps.dynamicCdApiLoader as any,
-            configMapper: mockDeps.configMapper as any,
-            serverUrlResolver: mockDeps.serverUrlResolver as any
+            expect(clientWithDepsObject).toBeInstanceOf(BioCatchClient);
         });
 
-        if (clientWithDepsObject instanceof BioCatchClient) {
-            console.log('✅ Dependencies object constructor works');
-        }
-
-        // Individual parameters constructor
-        const clientWithIndividualParams = new BioCatchClient(
-            mockDeps.client as any,
-            mockDeps.dynamicCdApiLoader as any,
-            mockDeps.configMapper as any,
-            mockDeps.serverUrlResolver as any
-        );
-
-        if (clientWithIndividualParams instanceof BioCatchClient) {
-            console.log('✅ Individual parameters constructor works');
-        }
-
-        // Test 3: Error handling
-        console.log('\n📋 Test 3: Error Handling');
-        try {
-            new BioCatchClient(
+        it('should work with individual parameters constructor', () => {
+            const clientWithIndividualParams = new BioCatchClient(
                 mockDeps.client as any,
-                undefined as any,
+                mockDeps.dynamicCdApiLoader as any,
                 mockDeps.configMapper as any,
                 mockDeps.serverUrlResolver as any
             );
-            console.log('❌ Should have thrown error for missing dependencies');
-        } catch (error) {
-            console.log('✅ Properly throws error for missing dependencies');
-        }
 
-        // Test 4: Proxy Interface
-        console.log('\n📋 Test 4: Proxy Interface');
+            expect(clientWithIndividualParams).toBeInstanceOf(BioCatchClient);
+        });
+    });
 
-        // Mock global window
-        const mockWindow = {} as any;
-        global.window = mockWindow;
+    describe('Error Handling', () => {
+        it('should throw error for missing dependencies', () => {
+            expect(() => {
+                new BioCatchClient(
+                    mockDeps.client as any,
+                    undefined as any,
+                    mockDeps.configMapper as any,
+                    mockDeps.serverUrlResolver as any
+                );
+            }).toThrow();
+        });
+    });
 
-        // Create client that should set up proxy
-        const clientForProxy = BioCatchClientMigrationBridge.createFromJSDependencies(
-            mockDeps.client,
-            mockDeps.dynamicCdApiLoader,
-            mockDeps.configMapper,
-            mockDeps.serverUrlResolver
-        );
+    describe('Proxy Interface', () => {
+        it('should create proxy interface on window when cdApi is not present', () => {
+            // Clear window first
+            if (typeof window !== 'undefined') {
+                delete (window as any).cdApi;
+                delete (window as any).bcClient;
+            }
 
-        if (mockWindow.bcClient && typeof mockWindow.bcClient.start === 'function') {
-            console.log('✅ Proxy interface created successfully');
-
-            // Test proxy methods
-            console.log('\n📋 Test 5: Proxy Method Calls');
-            mockWindow.bcClient.start(
-                'https://test.com',
-                'customer123',
-                'session456',
-                { enableFrames: true },
-                BCProtocolType.V3
+            BioCatchClientMigrationBridge.createFromJSDependencies(
+                mockDeps.client,
+                mockDeps.dynamicCdApiLoader,
+                mockDeps.configMapper,
+                mockDeps.serverUrlResolver
             );
 
-            mockWindow.bcClient.pause();
-            mockWindow.bcClient.resume();
-            mockWindow.bcClient.updateCustomerSessionID('newCustomer');
-            mockWindow.bcClient.stop();
+            expect((window as any).bcClient).toBeDefined();
+            expect(typeof (window as any).bcClient.start).toBe('function');
+        });
 
-            console.log('✅ All proxy methods executed successfully');
-        } else {
-            console.log('❌ Proxy interface not created properly');
-        }
+        it('should execute proxy methods without errors', () => {
+            // Clear window first
+            if (typeof window !== 'undefined') {
+                delete (window as any).cdApi;
+                delete (window as any).bcClient;
+            }
 
-        console.log('\n🎉 All migration verification tests passed!');
+            BioCatchClientMigrationBridge.createFromJSDependencies(
+                mockDeps.client,
+                mockDeps.dynamicCdApiLoader,
+                mockDeps.configMapper,
+                mockDeps.serverUrlResolver
+            );
 
-        console.log('\n📝 Migration Strategy Summary:');
-        console.log('• ✅ TypeScript BioCatchClient created');
-        console.log('• ✅ Migration bridge functional');
-        console.log('• ✅ JavaScript dependencies adapted');
-        console.log('• ✅ Proxy interface working');
-        console.log('• ✅ Error handling implemented');
-
-        console.log('\n🔄 Next Steps for Gradual Migration:');
-        console.log('1. Replace mock dependencies with actual JS SDK imports');
-        console.log('2. Test with real JavaScript BioCatchClient dependencies');
-        console.log('3. Start migrating individual components (ServerUrlResolver, ConfigMapper, etc.)');
-        console.log('4. Gradually replace JS dependencies with TS implementations');
-        console.log('5. Remove migration bridge once all components are migrated');
-
-    } catch (error) {
-        console.error('❌ Migration verification failed:', error);
-        process.exit(1);
-    }
-}
-
-// Run tests if this file is executed directly
-if (require.main === module) {
-    runMigrationTests();
-}
+            expect(() => {
+                (window as any).bcClient.start(
+                    'https://test.com',
+                    'customer123',
+                    'session456',
+                    { enableFrames: true },
+                    BCProtocolType.V3
+                );
+                (window as any).bcClient.pause();
+                (window as any).bcClient.resume();
+                (window as any).bcClient.updateCustomerSessionID('newCustomer');
+                (window as any).bcClient.stop();
+            }).not.toThrow();
+        });
+    });
+});
 
 // Export for use in other scripts
-export { createMockJSDependencies, runMigrationTests };
+export { createMockJSDependencies };

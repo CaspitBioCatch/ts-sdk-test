@@ -4,12 +4,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Commands
 
-- `npm run build` - Compile TypeScript to JavaScript in dist/
+The project now uses **Nx** for build orchestration, caching, and task management:
+
+- `npm run build` - Compile TypeScript to JavaScript in dist/ (with Nx caching)
 - `npm run webpack:dev` - Bundle TypeScript with webpack to public/customerJs/slothDebug_DevVersion.js
 - `npm run devserver` - Start development server with webpack bundling to customerJs/
 - `npm run build:watch` - Compile TypeScript with watch mode for development
 - `npm run clean` - Remove dist/ directory
-- `npm test` - Currently not configured (placeholder)
+- `npm test` - Run Vitest tests (with Nx caching)
+- `npm run test:ui` - Run Vitest with UI
+- `npm run test:run` - Run Vitest in CI mode
+- `npm run lint` - Run ESLint (with Nx caching)
+
+### Nx Integration
+
+The project is now configured as an Nx workspace for improved:
+- **Build Caching**: Subsequent builds are cached for faster execution
+- **Task Orchestration**: Dependencies between tasks are managed automatically
+- **Parallel Execution**: Multiple tasks can run in parallel where possible
+- **Incremental Builds**: Only changed files are rebuilt
+
+#### Nx Commands
+- `npx nx build` - Direct Nx build command
+- `npx nx test` - Direct Nx test command  
+- `npx nx lint` - Direct Nx lint command
+- `npx nx show projects` - Show all projects in workspace
+- `npx nx graph` - View project dependency graph
 
 ## Project Overview
 

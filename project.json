@@ -1,0 +1,82 @@
+{
+  "name": "ts-sdk-test",
+  "$schema": "node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "src",
+  "projectType": "library",
+  "tags": ["scope:sdk", "type:library"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist",
+        "main": "src/index.ts",
+        "tsConfig": "tsconfig.json",
+        "packageJson": "package.json"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true
+        }
+      }
+    },
+    "build:watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "tsc --watch"
+      }
+    },
+    "webpack:dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack --mode=development"
+      }
+    },
+    "webpack:build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack --mode=production"
+      }
+    },
+    "devserver": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "webpack serve --config=webpack.devserver.config.js --mode=development --https"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "passWithNoTests": true,
+        "reportsDirectory": "coverage"
+      }
+    },
+    "test:ui": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest --ui"
+      }
+    },
+    "test:run": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "vitest run"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["src/**/*.ts", "src/**/*.js"]
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "rm -rf dist"
+      }
+    }
+  }
+}

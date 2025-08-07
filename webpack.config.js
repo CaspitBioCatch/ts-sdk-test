@@ -7,18 +7,25 @@ const babelConfig = require('./scripts/webpack/babel.loader.config.js');
 const webpackConfig = merge(eslintConfig, babelConfig, {
     mode: 'development',
     target: ['web', 'es5'],
-    devtool: "source-map",
+    devtool: "inline-source-map",
     stats: true,
     entry: {
         main: './dist/src/index.js',
-        worker: './js-sdk-legacy/src/worker/worker.js'
+        worker: './js-sdk-legacy/src/worker/worker.js',
+        slave: './js-sdk-legacy/src/slave/slave.js',
     },
     output: {
         filename: () => {
             return '[name].debug.bundle.js';
         },
         path: path.resolve(__dirname, 'tempClasses'),
-        library: "cdwpb"
+        library: "cdwpb",
+        devtoolModuleFilenameTemplate: '../[resource-path]'
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'src')
+        }
     }
 });
 

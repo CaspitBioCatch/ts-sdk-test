@@ -14,10 +14,6 @@ const copyFiles = {
     // Files that are served by the Webpack Dev Server.
     devserver: [
         {
-            source: path.resolve(projectRootDir, 'public') + '/DefaultCustomerApi.js',
-            destination: path.resolve(projectRootDir, 'public/customerJs') + '/DefaultCustomerApi.js',
-        },
-        {
             source: path.resolve(projectRootDir, 'tempClasses/main.debug.bundle.js'),
             destination: path.resolve(projectRootDir, 'public/customerJs/main.js'),
         },
@@ -28,7 +24,10 @@ const copyFiles = {
     ]
 }
 
-const webpackConfig = {
+const baseWebpackConfig = require('./webpack.config.js');
+const { merge } = require('webpack-merge');
+
+const webpackConfig = merge(baseWebpackConfig, {
     devServer: {
         allowedHosts: [
             'localhost',
@@ -48,9 +47,19 @@ const webpackConfig = {
         },
         open: 'test.html',
         port: 9000,
-        static: {
-            directory: path.resolve(projectRootDir, 'public'),
-        },
+        static: [
+            {
+                directory: path.resolve(projectRootDir, 'public'),
+            },
+            {
+                directory: path.resolve(projectRootDir, 'src'),
+                publicPath: '/src',
+            },
+            {
+                directory: path.resolve(projectRootDir, 'js-sdk-legacy/src'),
+                publicPath: '/js-sdk-legacy/src',
+            }
+        ],
     },
     watchOptions: {
         ignored: [
@@ -88,7 +97,7 @@ const webpackConfig = {
                     })
             }
         }
-    ],
-};
+    ]
+});
 
 module.exports = webpackConfig;
